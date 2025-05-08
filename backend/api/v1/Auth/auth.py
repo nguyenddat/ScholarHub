@@ -28,19 +28,19 @@ async def register(
         if not success:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content={"message": user, "user": None}
+                content={"success": False, "message": user, "user": None}
             )
 
         else:
             return JSONResponse(
                 status_code=status.HTTP_201_CREATED,
-                content={"message": "Đăng ký thành công", "user": user}
+                content={"success": True, "message": "Đăng ký thành công", "user": user}
             )
     
     except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": f"Đã xảy ra lỗi: {str(e)}", "user": None}
+            content={"success": False, "message": f"Đã xảy ra lỗi: {str(e)}", "user": None}
         )
 
 
@@ -61,11 +61,17 @@ async def login_for_access_token(
     access_token = create_access_token(subject=user.id)
     refresh_token = create_refresh_token(subject=user.id)
     
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer"
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "success": True, 
+            "message": f"", 
+            "payload": {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "token_type": "bearer"
+            }}
+        )
 
 
 @router.post("/refresh-token", response_model=Token)
@@ -102,11 +108,18 @@ async def refresh_token(
     access_token = create_access_token(subject=user.id)
     refresh_token = create_refresh_token(subject=user.id)
     
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer"
-    }
+    return JSONResponse(
+    status_code=status.HTTP_200_OK,
+    content={
+        "success": True, 
+        "message": f"", 
+        "payload": {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }}
+    )
+    
 
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user = Depends(get_current_user)) -> Any:
