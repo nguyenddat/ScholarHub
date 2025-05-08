@@ -54,7 +54,7 @@ def get_scholarship(
         return JSONResponse(
             status_code = status.HTTP_200_OK,
             content = {        
-                    "success": False, 
+                    "success": True, 
                     "message": "Lấy danh sách học bổng thành công",
                     "payload": {
                         "scholarships": payload
