@@ -148,6 +148,13 @@ async def read_users_me(current_user = Depends(get_current_user)) -> Any:
             "success": True, 
             "message": "Lấy thông tin người dùng thành công",
             "payload": {
-                "user": current_user
+                "user": {
+                    "id": str(current_user.id),
+                    "email": current_user.email,
+                    "role": current_user.role,
+                    "avatar": current_user.avatar,
+                    "banner": current_user.banner,
+                    "created_at": str(current_user.created_at)
+                }
             }}
     )
