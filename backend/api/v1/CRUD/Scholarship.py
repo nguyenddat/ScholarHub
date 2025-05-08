@@ -36,7 +36,6 @@ def get_scholarship(
         pass
 
 
-
 @router.get("/manage-scholarships")
 def get_scholarship(
     db = Depends(get_db),
@@ -54,7 +53,13 @@ def get_scholarship(
         )
         return JSONResponse(
             status_code = status.HTTP_200_OK,
-            content = payload
+            content = {        
+                    "success": False, 
+                    "message": "Lấy danh sách học bổng thành công",
+                    "payload": {
+                        "scholarships": payload
+                    },
+                }
         )
 
     except Exception as e:
