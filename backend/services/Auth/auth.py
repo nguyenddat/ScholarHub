@@ -17,38 +17,6 @@ async def get_user_by_email(db: Session, email: str) -> Optional[User]:
     """Lấy user theo email"""
     return db.query(User).filter(User.email == email).first()
 
-async def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
-    """Xác thực người dùng bằng email và mật khẩu"""
-    user = await get_user_by_email(db, email)
-    if not user:
-        return None
-    if not verify_password(password, user.password_hash):
-        return None
-    
-    return user
-
-async def create_user(db: Session, user_data: UserCreate) -> User:
-    """Tạo người dùng mới"""
-    # Kiểm tra email đã tồn tại chưa
-    db_user = await get_user_by_email(db, user_data.email)
-    if db_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email đã được đăng ký",
-        )
-    
-    # Tạo user mới
-    hashed_password = get_password_hash(user_data.password)
-    db_user = User(
-        email=user_data.email,
-        password_hash=hashed_password,
-    )
-    
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
 async def get_current_user(
     token: str = Depends(oauth2_scheme), 
     db: Session = Depends(get_db)
@@ -71,4 +39,5 @@ async def get_current_user(
     user = db.query(User).filter(User.id == token_data.user_id).first()
     if user is None:
         raise credentials_exception
+    
     return user

@@ -20,6 +20,7 @@ class User(BareBaseModel):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     profile = relationship("Profile", back_populates="user", uselist=False)
+    scholarship = relationship("Scholarship", back_populates="user")
 
     @staticmethod
     def create_user(db, user: UserCreate):
