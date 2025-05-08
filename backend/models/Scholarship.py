@@ -95,7 +95,6 @@ class Scholarship(BareBaseModel):
             "deadline": scholarship.deadline,
             "description": scholarship.description,
             "original_url": scholarship.original_url,
-            "language": scholarship.language,
             "posted_at": str(scholarship.posted_at)
         } for scholarship in scholarships]
 

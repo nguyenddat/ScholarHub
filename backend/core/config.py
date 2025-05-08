@@ -13,7 +13,7 @@ class Settings(BaseModel):
     BASE_DIR: str = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
     
     SECRET_KEY: str = os.getenv("SECRET_KEY", "")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     SECURITY_ALGORITHM: str = os.getenv("SECURITY_ALGORITHM", "")
     
