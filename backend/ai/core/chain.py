@@ -24,14 +24,6 @@ def get_prompt_template(task):
         parser = scholarshipExtract_parser
         prompt_template = scholarshipExtract_prompt
     
-    elif task == "profile_matching":
-        parser = profileMatching_parser
-        prompt_template = profileMatching_prompt
-    
-    elif task == "preference_matching":
-        parser = preferenceMatching_parser
-        prompt_template = preferenceMatching_prompt
-
     prompt_template = ChatPromptTemplate.from_messages(
         [
             ("system", prompt_template + """{format_instructions}"""),

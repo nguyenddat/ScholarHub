@@ -17,14 +17,21 @@ class Scholarship(BareBaseModel):
     major = Column(Text)
     degree_level = Column(Text)
     
-
     education_criteria = Column(Text)
     personal_criteria = Column(Text)
     experience_criteria = Column(Text)
     research_criteria = Column(Text)
     certification_criteria = Column(Text)
     achievement_criteria = Column(Text)
-    
+
+    education_weights = Column(Float)
+    personal_weights = Column(Float)
+    experience_weights = Column(Float)
+    research_weights = Column(Float)
+    certification_weights = Column(Float)
+    achievement_weights = Column(Float)
+    scholarship_criteria = Column(Text)
+
     deadline = Column(Text)
     description = Column(Text)
 

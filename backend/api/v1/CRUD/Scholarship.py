@@ -6,6 +6,9 @@ from fastapi.responses import JSONResponse
 from database.init_db import get_db
 from models.Scholarship import Scholarship
 from schemas.CRUD.Scholarship import PostScholarshipRequest
+from helpers.CriteriaWeights import cal_weights
+from services.CRUD.Scholarship import scholarship_to_description
+from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
 
 router = APIRouter()
 
@@ -30,6 +33,15 @@ def post_scholarship(payload: PostScholarshipRequest, db = Depends(get_db)):
     data = payload.dict()
     data["posted_at"] = posted_at
 
+    weights = cal_weights(data["weights"])
+    data.pop("weights")
+    for key in weights.keys():
+        data[f"{key}_weights"] = weights[key]
+
+    scholarship_description = scholarship_to_description(payload)
+    scholarship_criteria = extract_scholarship(scholarship_description)
+    data["scholarship_criteria"] = str(scholarship_criteria)
+    
     scholarship, success = Scholarship.create(db = db, data = data)
     if not success:
         return JSONResponse(

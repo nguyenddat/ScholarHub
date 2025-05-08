@@ -1,134 +1,151 @@
-preferenceMatching_prompt = """
-You are an intelligent virtual assistant specialized in comparing scholarship information with user preferences.
+scholarshipExtract_prompt = """
+You are an intelligent virtual assistant specialized in comparing a scholarship description against certain criteria. You will be provided with a set of criteria, and your task is to extract requirements from the scholarship description based on these criteria. If the description meets a criterion, the relevant score will be 1; otherwise, it will be 0. Finally, you will return the evaluation in the JSON format defined below:
 
-For each **detailed preference** of the user, determine if the scholarship information is a match. Additionally, for each matched or unmatched decision, provide a list of **evidence** (e.g., scholarship title, provider, type, major, etc.) from the scholarship information that led to your conclusion.
+Return Format:
+```json
+{{
+  "ordinal_criteria": {{
+    "education": {{
+        score: [score_1, score_2, score_3, score_4, score_5],
+        evidence: ["evidence 1", evidence 2"]
+    }},
+    "experience": same as education,
+    "research": same as education,
+    "achievement": same as education,
+    "certification": same as education,
+  }},
+  "binary_criteria": {{
+    "gender": Gender of candidate (lower case + snake case)
+    "nationality": Nationality of candidate (lower case + snake case)
+  }}
+}}
+- Always return match_percentage. If there are no specific criteria provided in criterion_match, return that all criteria in that category are fully met.
 
-**Detailed Instructions**:
-1. Analyze the provided scholarship information and the user's preferences.
-2. For each preference listed, search for relevant information in the scholarship description.
-3. Define the output:
-- Return a dictionary under the field `matching_results` where:
-- Format your response as:
-    ```json
-    {{
-        "preference": {{
-            "detailed_preference": {{
-                    "matched": true,
-                    "evidence": ["Degree level information from scholarship"]
-                }},
-            "Another detailed_preference": {{
-                    "matched": false,
-                    "evidence": [""]
-                }},
-            }},
-            "other_preferences": {{}},
-        "overall_match_percentage": Average of all matched preferences.
-    }}
-    ```
-- Always return `match_percentage` for each preference category and `overall_match_percentage`. If there are no preferences in a specific category, return 100 for that category's `match_percentage`.
+Criteria:
+- Education:
+| Score | Description                                                                                                |
+| ----- | ---------------------------------------------------------------------------------------------------------- |
+| **5** | GPA ≥ 3.8 or top 5% of class; multiple academic awards or honors (e.g., summa cum laude, university medal) |
+| **4** | GPA 3.5–3.79 or top 10–15%; some academic recognition or honors                                            |
+| **3** | GPA 3.2–3.49 or top 25%; solid but not exceptional academic record                                         |
+| **2** | GPA 2.8–3.19; academic performance is average                                                              |
+| **1** | GPA < 2.8; weak academic performance or no distinction                                                     |
 
-Scholarship Information:
+- Research:
+| Score | Description                                                                                    |
+| ----- | ---------------------------------------------------------------------------------------------- |
+| **5** | Multiple peer-reviewed publications or major research projects; led research with clear impact |
+| **4** | At least one publication or conference paper; strong assistant roles in research projects      |
+| **3** | Some research experience (e.g., thesis, internships, RA role), but no publications             |
+| **2** | Minimal or unrelated research exposure                                                         |
+| **1** | No research experience                                                                         |
+
+- Experiences:
+| Score | Description                                                                                                         |
+| ----- | ------------------------------------------------------------------------------------------------------------------- |
+| **5** | 3+ years of relevant full-time experience; led significant projects or teams; demonstrated measurable impact        |
+| **4** | 1–3 years of relevant experience; contributed meaningfully to projects or processes; some leadership or recognition |
+| **3** | Internship(s) or <1 year of relevant experience; assisted in projects with moderate responsibility                  |
+| **2** | Limited experience; unrelated part-time jobs or minor volunteer work                                                |
+| **1** | No relevant work experience or only casual/short-term roles                                                         |
+
+- Achievements:
+| Score | Description                                                                                                       |
+| ----- | ----------------------------------------------------------------------------------------------------------------- |
+| **5** | National or international recognition (e.g., winning top prizes in prestigious competitions, global scholarships) |
+| **4** | University-level or industry-level awards (e.g., top performer awards, dean’s list for multiple years)            |
+| **3** | Faculty/department-level recognition or participation in competitive events with notable results                  |
+| **2** | Participation in competitions or events with limited recognition; small-scale achievements                        |
+| **1** | No awards or notable achievements                                                                                 |
+
+- Certifications:
+| Score | Description                                                                                                    |
+| ----- | -------------------------------------------------------------------------------------------------------------- |
+| **5** | Multiple highly recognized certifications relevant to the field (e.g., AWS Certified Solutions Architect, PMP) |
+| **4** | One major industry-recognized certification or several well-regarded ones in relevant areas                    |
+| **3** | One or two moderately recognized certifications or completion of relevant online courses with certification    |
+| **2** | Basic certifications with limited industry value or relevance                                                  |
+| **1** | No certifications                                                                                              |
+
+Scholarship description:
 {description}
-
-User Preferences:
-{preferences}
 
 {question}
 """
 
-profileMatching_prompt = """
-You are an intelligent virtual assistant specialized in comparing a resume with the requirements of a job or scholarship.
+resumeExtract_prompt = """
+You are an intelligent virtual assistant specialized in comparing a CV against job requirements. You will be provided with a set of criteria, and your task is to evaluate the information from the CV against these criteria. If the candidate's CV meets a criterion, it will receive the corresponding score for that criterion. Furthermore, if a higher-level criterion is met (e.g., score 5), all lower-level criteria (e.g., scores 4, 3, 2, 1) are automatically considered met as well.
 
-For each **detailed requirement** provided, determine if it is satisfied based on the resume data. Also, for each matched or unmatched decision, provide a list of **evidence** (skills, experiences, certifications, etc.) from the resume that led to your conclusion.
+Return Format:
+```json
+{{
+  "ordinal_criteria": {{
+    "education": {{
+        score: [score_1, score_2, score_3, score_4, score_5],
+        evidence: ["evidence 1", evidence 2"]
+    }},
+    "experience": same as education,
+    "research": same as education,
+    "achievement": same as education,
+    "certification": same as education,
+  }},
+  "binary_criteria": {{
+    "gender": Gender of candidate (lower case + snake case)
+    "nationality": Nationality of candidate (lower case + snake case)
+  }}
+}}
+- Always return match_percentage. If there are no specific criteria provided in criterion_match, return that all criteria in that category are fully met. If there is no detailed binary criteria, return "".
 
-**Detailed Instructions**:
-1. Analyze the provided scholarship/job description and the resume.
-2. For each requirement listed, search for relevant information in the resume.
-3. Define the output:
-- Return a dictionary under the field `criteria` where:
-- Format your response as:
-    {{
-        "education_criteria": {{
-            "Detailed Requirement 1": {{
-                "matched": true,
-                "evidence": ["Item A from resume", "Item B from resume"]
-            }},
-            "Another Specific Requirement": {{
-                "matched": false,
-                "evidence": []
-            }},
-            "match_percentage": true match percentage or 100% if there is no education criteria. 
-        }},
-        "experiences_criteria": {{same as education}},
-        "research_criteria": {{same as education}},
-        "certifications_criteria": {{same as education}},
-        "achievements_criteria": {{same as education}},
-        "personal_criteria": {{same as education}}
-    }}
-- Always return match_percentage. If there is no criteria, return 100
-    
-Scholarship Description:
-{description}
+Criteria:
+- Education:
+| Score | Description                                                                                                |
+| ----- | ---------------------------------------------------------------------------------------------------------- |
+| **5** | GPA ≥ 3.8 or top 5% of class; multiple academic awards or honors (e.g., summa cum laude, university medal) |
+| **4** | GPA 3.5–3.79 or top 10–15%; some academic recognition or honors                                            |
+| **3** | GPA 3.2–3.49 or top 25%; solid but not exceptional academic record                                         |
+| **2** | GPA 2.8–3.19; academic performance is average                                                              |
+| **1** | GPA < 2.8; weak academic performance or no distinction                                                     |
+
+- Research:
+| Score | Description                                                                                    |
+| ----- | ---------------------------------------------------------------------------------------------- |
+| **5** | Multiple peer-reviewed publications or major research projects; led research with clear impact |
+| **4** | At least one publication or conference paper; strong assistant roles in research projects      |
+| **3** | Some research experience (e.g., thesis, internships, RA role), but no publications             |
+| **2** | Minimal or unrelated research exposure                                                         |
+| **1** | No research experience                                                                         |
+
+- Experiences:
+| Score | Description                                                                                                         |
+| ----- | ------------------------------------------------------------------------------------------------------------------- |
+| **5** | 3+ years of relevant full-time experience; led significant projects or teams; demonstrated measurable impact        |
+| **4** | 1–3 years of relevant experience; contributed meaningfully to projects or processes; some leadership or recognition |
+| **3** | Internship(s) or <1 year of relevant experience; assisted in projects with moderate responsibility                  |
+| **2** | Limited experience; unrelated part-time jobs or minor volunteer work                                                |
+| **1** | No relevant work experience or only casual/short-term roles                                                         |
+
+- Achievements:
+| Score | Description                                                                                                       |
+| ----- | ----------------------------------------------------------------------------------------------------------------- |
+| **5** | National or international recognition (e.g., winning top prizes in prestigious competitions, global scholarships) |
+| **4** | University-level or industry-level awards (e.g., top performer awards, dean’s list for multiple years)            |
+| **3** | Faculty/department-level recognition or participation in competitive events with notable results                  |
+| **2** | Participation in competitions or events with limited recognition; small-scale achievements                        |
+| **1** | No awards or notable achievements                                                                                 |
+
+- Certifications:
+| Score | Description                                                                                                    |
+| ----- | -------------------------------------------------------------------------------------------------------------- |
+| **5** | Multiple highly recognized certifications relevant to the field (e.g., AWS Certified Solutions Architect, PMP) |
+| **4** | One major industry-recognized certification or several well-regarded ones in relevant areas                    |
+| **3** | One or two moderately recognized certifications or completion of relevant online courses with certification    |
+| **2** | Basic certifications with limited industry value or relevance                                                  |
+| **1** | No certifications                                                                                              |
+
 
 Resume:
 {resume}
 
-{question}
-"""
-
-scholarshipExtract_prompt = """You are an intelligent virtual assistant specialized in extracting information from a provided scholarship description. Your task is to extract specific information fields from that piece of description that we supply.
-
-**Detailed Instructions**:
-1. Analyze the provided passage.
-2. Search for relevant information corresponding to the fields defined below.
-3. Define the output:
-    - Return the result in the following JSON format:
-    ```json
-    {{    
-        "education_criteria" (List[str] or [] if not found): "Education criteria",
-        "personal_criteria" (List[str] or [] if not found): "Personal criteria",
-        "experience_criteria" (List[str] or [] if not found): "Experience criteria",
-        "research_criteria" (List[str] or [] if not found): "Research criteria",
-        "certification_criteria" (List[str] or [] if not found): "Certification criteria",
-        "achievement_criteria" (List[str] or [] if not found): "Achievement criteria",
-    }}
-    ```
-    - If any of the fields are missing in the provided text, simply return an empty list `[]` for that field.
-    - Strictly adhere to the JSON format for the output.
-
-Scholarship Description:
-{context}
-
-Requirement:
-{question}"""
-
-resumeExtract_prompt = """You are an intelligent virtual assistant specialized in extracting information from a provided resume. Your task is to extract specific information fields from a resume that we supply.
-
-**Detailed Instructions**:
-1. Analyze the provided passage (the resume content).
-2. Search for relevant information corresponding to the fields defined below.
-3. Construct your response:
-    - Ensure you only use information explicitly provided in the resume. Do not fabricate or infer any details that are not clearly stated.
-    - If the information for a specific field is not found in the provided resume, please return "Information not found in the resume."
-4. Define the output:
-    - Return the result in the following JSON format:
-    ```json
-    {{    
-        - `education`: A list of educational qualifications mentioned in the resume, including degrees, institutions, and graduation dates (e.g., "Bachelor of Science in Computer Science, University X, 2020-2024").
-        - `experiences`: A list of previous work experiences, including job titles, company names, dates of employment, and key responsibilities/achievements (e.g., "Software Engineer, Google, 2024-Present: Developed and maintained web applications...").
-        - `research`: A list of any research projects, publications, or presentations mentioned in the resume, including titles and brief descriptions (e.g., "Published a paper on AI ethics at Conference Y").
-        - `certifications`: A list of any professional certifications mentioned in the resume (e.g., "Project Management Professional (PMP)").
-        - `achievements`: A list of any achievements or awards mentioned in the resume`.
-        - `personal`: A list of personal information.
-    }}
-    ```
-    - If any of the fields are missing in the provided resume, simply return an empty list `[]` for that field.
-    - Strictly adhere to the JSON format for the output.
-
-Resume:
-{context}
-
-Requirement:
 {question}
 """
 

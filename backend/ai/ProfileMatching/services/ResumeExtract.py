@@ -6,7 +6,7 @@ def extract_resume(pages):
     return get_chat_completion(
         task = "resume_extract",
         params = {
-            "question": "Extract specific fields of information from the provided resume",
+            "question": "Evaluate the information from the CV against these criteria.",
             "context": pages
         }
     )

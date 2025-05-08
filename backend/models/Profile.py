@@ -21,6 +21,9 @@ class Profile(Base):
     nationality = Column(Text)
     country_of_residence = Column(Text)
     self_introduction = Column(Text)
+
+    criteria = Column(Text)
+
     is_public = Column(Boolean, default=False)
 
     user = relationship("User", back_populates="profile")

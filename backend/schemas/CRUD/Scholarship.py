@@ -11,10 +11,22 @@ class PostScholarshipRequest(BaseModel):
     region: Optional[str] = None
     country: Optional[str] = None
     major: Optional[str] = None
+
+    # Criteria
+    education_criteria: Optional[str] = None
+    personal_criteria: Optional[str] = None
+    experience_criteria: Optional[str] = None
+    research_criteria: Optional[str] = None
+    certification_criteria: Optional[str] = None
+    achievement_criteria: Optional[str] = None
+
+    # Weights
+    weights: Optional[Dict[str, str]] = None
+
+    # Meta
     deadline: Optional[str] = None
     description: Optional[str] = None
     original_url: Optional[str] = None
-    language: Optional[str] = None
 
     class Config:
         from_attributes = True
