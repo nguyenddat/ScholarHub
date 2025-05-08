@@ -43,7 +43,7 @@ class User(BareBaseModel):
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return True, {"id": str(new_user.id), "avatar": new_user.avatar, "role": new_user.role, "created_at": str(new_user.created_at)}
+        return True, {"id": str(new_user.id), "avatar": new_user.avatar, "banner": new_user.banner, "role": new_user.role, "created_at": str(new_user.created_at)}
 
 
     @staticmethod

@@ -24,4 +24,3 @@ class Profile(Base):
     is_public = Column(Boolean, default=False)
 
     user = relationship("User", back_populates="profile")
-    preferences = relationship("Preference", back_populates="profile")

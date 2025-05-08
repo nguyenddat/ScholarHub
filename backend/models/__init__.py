@@ -11,7 +11,6 @@ from .Education import Education
 from .Experience import Experience
 from .FeaturedUser import FeaturedUser
 from .ProfileEvaluation import ProfileEvaluation
-from .Preference import Preference
 from .Publication import Publication
 from .Referee import Referee
 from .ScholarshipApplication import ScholarshipApplication

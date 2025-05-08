@@ -28,6 +28,7 @@ class UserResponse(UserBase):
     id: UUID
     role: UserRoleEnum
     avatar: Optional[str] = None
+    banner: Optional[str] = None
     created_at: datetime
     
     class Config:
