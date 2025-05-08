@@ -13,7 +13,7 @@ def get_current_active_user(current_user: User = Depends(get_current_user)) -> U
         )
     return current_user
 
-def get_current_admin_user(current_user: User = Depends(get_current_user)) -> User:
+def admin_required(current_user: User = Depends(get_current_user)) -> User:
     """Kiểm tra người dùng hiện tại có phải là admin không"""
     if not current_user.role == UserRoleEnum.admin:
         raise HTTPException(

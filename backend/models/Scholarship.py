@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import *
+from sqlalchemy.orm import relationship
 
 from helpers.Enums import *
 from models.BaseClass import BareBaseModel, Base
@@ -38,10 +39,14 @@ class Scholarship(BareBaseModel):
     original_url = Column(Text)
     posted_at = Column(DateTime, default=datetime.utcnow)
 
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    user = relationship("User", back_populates="scholarship")
+
     @staticmethod
-    def get(db, mode = "all", params = {}):
+    def get(db, mode = "all", params = {}, limit = 10, offset = 0):
+        base_query = db.query(Scholarship).offset(offset).limit(limit)
         if mode == "all":
-            scholarships = db.query(Scholarship).all()
+            scholarships = base_query.all()
             return [{
                 "id": str(scholarship.id),
                 "title": scholarship.title,
@@ -64,7 +69,24 @@ class Scholarship(BareBaseModel):
             for key, value in params.items():
                 if hasattr(Scholarship, key):
                     query = query.filter(getattr(Scholarship, key) == value)
-            return query.all()
+            
+            scholarships = query.offset(offset).limit(limit).all()
+            return [{
+                "id": str(scholarship.id),
+                "title": scholarship.title,
+                "provider": scholarship.provider,
+                "type": scholarship.type,
+                "funding_level": scholarship.funding_level,
+                "degree_level": scholarship.degree_level,
+                "region": scholarship.region,
+                "country": scholarship.country,
+                "major": scholarship.major,
+                "deadline": scholarship.deadline,
+                "description": scholarship.description,
+                "original_url": scholarship.original_url,
+                "language": scholarship.language,
+                "posted_at": str(scholarship.posted_at)
+            } for scholarship in scholarships]
 
         raise ValueError("Invalid mode")
 
