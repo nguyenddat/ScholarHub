@@ -1,0 +1,35 @@
+services:
+  db:
+    container_name: scholarhub_db
+    image: postgres
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ./database/.env
+    ports:
+      - "8001:5432"
+    restart: unless-stopped
+    networks:
+      - fast_api
+
+  backend:
+    container_name: scholarhub_backend
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/backend
+      - ./backend/requirements.txt:/backend/requirements.txt
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - fast_api
+
+networks:
+  fast_api:
+    driver: bridge
