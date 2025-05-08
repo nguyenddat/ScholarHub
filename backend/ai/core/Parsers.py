@@ -13,7 +13,6 @@ class WebScrapeResponse(BaseModel):
     major: str
     degree_level: str
     
-
     education_criteria: str
     personal_criteria: str
     experience_criteria: str

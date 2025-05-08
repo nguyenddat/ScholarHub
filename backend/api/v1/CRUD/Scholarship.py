@@ -14,6 +14,29 @@ from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
 
 router = APIRouter()
 
+
+@router.get("/get-scholarships/{suggest}")
+def get_scholarship(
+    db = Depends(get_db),
+    user = Depends(get_current_user),
+    suggest: bool = False,
+    limit: int = 10,
+    offset: int = 0
+):
+    if not suggest:
+        payload = Scholarship.get(
+            db = db, 
+            mode = "all",
+            limit = limit,
+            offset = offset
+        )
+        return JSONResponse(status_code = status.HTTP_200_OK, content = payload)
+
+    else:
+        pass
+
+
+
 @router.get("/manage-scholarships")
 def get_scholarship(
     db = Depends(get_db),
@@ -24,7 +47,7 @@ def get_scholarship(
     try:
         payload = Scholarship.get(
             db = db, 
-            mode = "all",
+            mode = "filter",
             params = {"user_id": user.id},
             limit = limit,
             offset = offset
