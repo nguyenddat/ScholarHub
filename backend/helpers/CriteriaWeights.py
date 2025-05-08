@@ -2,12 +2,12 @@ from typing import *
 
 def cal_weights(weights: Optional[Dict[int, str]] = None):
     criteria_weights = {
-        "education": 0,
-        "experience": 0,
-        "research": 0,
-        "achievement": 0,
-        "certification": 0,
-        "personal": 0
+        "education_criteria": 0,
+        "experience_criteria": 0,
+        "research_criteria": 0,
+        "achievement_criteria": 0,
+        "certification_criteria": 0,
+        "personal_criteria": 0
     }
 
     if weights:
@@ -22,12 +22,12 @@ def cal_weights(weights: Optional[Dict[int, str]] = None):
     
     else:
         criteria_weights = {
-            "education": 1 / 6,
-            "experience": 1 / 6,
-            "research": 1 / 6,
-            "achievement": 1 / 6,
-            "certification": 1 / 6,
-            "personal": 1 / 6
+            "education_criteria": 1 / 6,
+            "experience_criteria": 1 / 6,
+            "research_criteria": 1 / 6,
+            "achievement_criteria": 1 / 6,
+            "certification_criteria": 1 / 6,
+            "personal_criteria": 1 / 6
         }
     
     return criteria_weights

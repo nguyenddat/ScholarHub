@@ -36,7 +36,7 @@ def post_scholarship(payload: PostScholarshipRequest, db = Depends(get_db)):
     weights = cal_weights(data["weights"])
     data.pop("weights")
     for key in weights.keys():
-        data[f"{key}_weights"] = weights[key]
+        data[f"{key.split("_")[0]}_weights"] = weights[key]
 
     scholarship_description = scholarship_to_description(payload)
     scholarship_criteria = extract_scholarship(scholarship_description)
