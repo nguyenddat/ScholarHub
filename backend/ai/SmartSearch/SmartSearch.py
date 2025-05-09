@@ -1,3 +1,5 @@
+import uuid
+
 from database.init_db import get_db
 from models.Scholarship import Scholarship
 from ai.core.chain import get_chat_completion
@@ -21,7 +23,7 @@ def smart_search(query, db):
         scholarship = Scholarship.get(
             db = db,
             mode = "filter",
-            params = {"id": id},
+            params = {"id": uuid.UUID(id)},
             limit = None,
             offset = None
         )
