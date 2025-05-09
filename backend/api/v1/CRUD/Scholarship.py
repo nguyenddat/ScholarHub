@@ -99,7 +99,13 @@ def post_scholarship(
 
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
-        content = scholarship
+        content = {
+            "success": True, 
+            "message": "Tạo học bổng thành công",
+            "payload": {
+                "scholarship": scholarship
+            },
+        } 
     )
 
 
