@@ -8,6 +8,4 @@ def scholarship_recommended(profile, db):
         offset = None
     )
 
-    for scholarship in scholarships:
-        scholarship["criteria_weights"] = None
-        pass
+    
