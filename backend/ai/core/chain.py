@@ -24,6 +24,14 @@ def get_prompt_template(task):
         parser = scholarshipExtract_parser
         prompt_template = scholarshipExtract_prompt
     
+    elif task == "scholarship_summary":
+        parser = scholarshipSummary_parser
+        prompt_template = scholarshipSummary_prompt
+    
+    elif task == "scholarship_select":
+        parser = scholarshipSelect_parser
+        prompt_template = scholarshipSelect_prompt
+
     prompt_template = ChatPromptTemplate.from_messages(
         [
             ("system", prompt_template + """{format_instructions}"""),

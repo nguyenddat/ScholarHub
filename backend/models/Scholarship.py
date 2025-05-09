@@ -63,8 +63,12 @@ class Scholarship(BareBaseModel):
             query = db.query(Scholarship)
             for key, value in params.items():
                 if hasattr(Scholarship, key):
-                    query = query.filter(getattr(Scholarship, key) == value)
-            scholarships = query.offset(offset).limit(limit).all()
+                    scholarships = query.filter(getattr(Scholarship, key) == value)
+                        
+            if limit is not None:
+                scholarships = scholarships.limit(limit)
+            if offset is not None:
+                scholarships = scholarships.offset(offset)
         else:
             raise ValueError("Invalid mode")
 

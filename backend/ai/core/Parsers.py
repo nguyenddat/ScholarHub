@@ -36,6 +36,14 @@ class ScholarshipExtractResponse(BaseModel):
     ordinal_criteria: dict
     binary_criteria: dict
 
+class ScholarshipSummaryResponse(BaseModel):
+    summary: str
+
+class ScholarshipSelectResponse(BaseModel):
+    scholarship_ids: List[str]
+
 webScrape_parser = PydanticOutputParser(pydantic_object=WebScrapeResponse)
 resumeExtract_parser = PydanticOutputParser(pydantic_object=ResumeExtractResponse)
 scholarshipExtract_parser = PydanticOutputParser(pydantic_object=ScholarshipExtractResponse)
+scholarshipSummary_parser = PydanticOutputParser(pydantic_object=ScholarshipSummaryResponse)
+scholarshipSelect_parser = PydanticOutputParser(pydantic_object=ScholarshipSelectResponse)

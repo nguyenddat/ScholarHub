@@ -11,9 +11,33 @@ from helpers.CriteriaWeights import cal_weights
 from services.Auth.auth import get_current_user
 from services.CRUD.Scholarship import scholarship_to_description
 from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
+from ai.SmartSearch.SmartSearch import smart_search
 
 router = APIRouter()
 
+@router.get("/scholarship/smart-search")
+def get_scholarship(
+    query: str,    
+    db = Depends(get_db),
+):
+    try:
+        resp_objs = smart_search(query, db)
+        return JSONResponse(
+            status_code = status.HTTP_200_OK,
+            content = {        
+                    "success": True, 
+                    "message": "Lấy danh sách học bổng thành công",
+                    "payload": {
+                        "scholarships": resp_objs
+                    },
+                }
+        )       
+
+    except Exception as e:
+        return JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content = str(e)
+        )        
 
 @router.get("/get-scholarships/{suggest}")
 def get_scholarship(
@@ -34,7 +58,6 @@ def get_scholarship(
 
     else:
         pass
-
 
 @router.get("/manage-scholarships")
 def get_scholarship(
