@@ -1,24 +1,21 @@
 import os
 from dotenv import load_dotenv
-import sqlite3
-from sqlite3 import Row
+from .init_db import get_db
 from datetime import datetime
 from typing import List, Dict
 
 load_dotenv()
 
 def get_db_connection():
-    """
-    Create connection to SQLite3 database
+      
+    db = next(get_db())
     
-    Returns:
-        Connection: Database connection object
-    """
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, 'scholarships.db')
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = Row
-    return conn
+    try:
+        yield db
+    finally:
+        # Session is automatically closed by the generator in get_db()
+        pass
+
 
 def init_chat_history_table():
     conn = get_db_connection()

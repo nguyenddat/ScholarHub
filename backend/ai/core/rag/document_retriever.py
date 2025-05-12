@@ -2,8 +2,6 @@ import os
 from typing import List, Dict
 import json
 
-# Path to scholarship documents
-DOCUMENTS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../../scholarship_documents")
 
 # Sample document data - in production, this would be loaded from files or a vector database
 SCHOLARSHIP_DOCUMENTS = [

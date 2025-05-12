@@ -1,12 +1,12 @@
 from langchain.tools import BaseTool
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Annotated, List
-from app.database.scholarship_service import (
+from database.scholarship_service import (
     search_scholarships,
     get_scholarship_by_id,
     get_scholarship_field
 )
-from app.core.rag.document_retriever import retrieve_documents
+from core.rag.document_retriever import retrieve_documents
 
 class ScholarshipSearchInput(BaseModel):
     query: str = Field(..., description="The search query for scholarships (can include keywords, country, degree level, etc.)")

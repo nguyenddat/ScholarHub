@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from app.core.ai.ai_service import get_answer, get_answer_stream
+from core.service.ai_service import get_answer, get_answer_stream
 import logging
 import json
 from typing import AsyncGenerator
@@ -24,10 +24,10 @@ async def chat(request: ChatRequest):
         logger.info(f"Received question: {request.question} for thread: {request.thread_id}")
         result = get_answer(request.question, request.thread_id)
         logger.info(f"Got result: {result}")
-        
+
         if not isinstance(result, dict) or "output" not in result:
             raise ValueError("Invalid response format from get_answer")
-            
+
         return ChatResponse(answer=result["output"])
     except Exception as e:
         logger.error(f"Error in chat endpoint: {str(e)}", exc_info=True)

@@ -1,23 +1,18 @@
-import sqlite3
-from sqlite3 import Row
 import os.path
 import re
+from .init_db import get_db
 from typing import List, Dict, Optional, Any
 from datetime import datetime
 
 def get_db_connection():
-    """
-    Create connection to SQLite3 database
+  
+    db = next(get_db())
     
-    Returns:
-        Connection: Database connection object
-    """
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, 'scholarships.db')
-    print(f"Connecting to database at: {db_path}")
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = Row
-    return conn
+    try:
+        yield db
+    finally:
+        # Session is automatically closed by the generator in get_db()
+        pass
 
 def init_scholarship_table():
     """
@@ -60,17 +55,17 @@ def normalize_text(text):
 def search_scholarships(query: str) -> List[Dict]:
     """
     Search scholarships based on query
-    
+
     Args:
         query (str): Search query
-        
+
     Returns:
         List[Dict]: List of matching scholarships
     """
     # Normalize query
     normalized_query = normalize_text(query)
     print(f"Searching for: '{query}' (normalized: '{normalized_query}')")
-    
+
     # Get column names for dynamic query building
     columns = get_table_schema()
     if not columns:
@@ -78,10 +73,10 @@ def search_scholarships(query: str) -> List[Dict]:
         # Fallback to common column names
         columns = ['title', 'provider', 'type', 'funding_level', 'degree_level',
                   'region', 'country', 'major', 'description']
-    
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        
+
         try:
             # First try direct query
             cursor.execute("SELECT * FROM scholarships LIMIT 1")
@@ -89,7 +84,7 @@ def search_scholarships(query: str) -> List[Dict]:
         except sqlite3.Error as e:
             print(f"Error with direct query: {e}")
             return []
-        
+
         # Build search query dynamically
         search_terms = normalized_query.split()
         if not search_terms:
@@ -99,12 +94,12 @@ def search_scholarships(query: str) -> List[Dict]:
             result = [dict(row) for row in rows]
             print(f"Empty query, returning {len(result)} results")
             return result
-        
+
         # Build a complex query that searches across all text columns
         # and ranks results by relevance
         search_conditions = []
         params = []
-        
+
         # For each searchable column
         searchable_columns = [col for col in columns if col.lower() not in 
                              ['id', 'created_at', 'updated_at']]
@@ -119,7 +114,7 @@ def search_scholarships(query: str) -> List[Dict]:
             if term_conditions:
                 condition = " OR ".join(term_conditions)
                 search_conditions.append(f"({condition})")
-        
+
         # Combine all conditions
         if search_conditions:
             where_clause = " AND ".join(search_conditions)
@@ -128,7 +123,7 @@ def search_scholarships(query: str) -> List[Dict]:
                 WHERE {where_clause}
                 LIMIT 20
             """
-            
+
             try:
                 print(f"Executing query with {len(params)} parameters")
                 cursor.execute(query, params)
@@ -148,8 +143,7 @@ def search_scholarships(query: str) -> List[Dict]:
                 rows = cursor.fetchall()
                 result = [dict(row) for row in rows]
                 print(f"Fallback query found {len(result)} results")
-                return result
-        
+                return result        
         return []
 
 def get_scholarship_by_id(scholarship_id: int) -> Optional[Dict]:
@@ -174,20 +168,16 @@ def get_scholarship_by_id(scholarship_id: int) -> Optional[Dict]:
 def get_scholarship_field(scholarship_id: int, field_name: str) -> Optional[Any]:
     """
     Get a specific field from a scholarship
-    
     Args:
         scholarship_id (int): Scholarship ID
         field_name (str): Field name to retrieve (e.g., 'deadline', 'original_url')
-        
     Returns:
         Optional[Any]: The field value if found
     """
     # Get the column names from the actual table
     columns = get_table_schema()
-    
     if field_name not in columns:
         return f"Invalid field name. Allowed fields: {', '.join(columns)}"
-    
     with get_db_connection() as conn:
         cursor = conn.cursor()
         try:
