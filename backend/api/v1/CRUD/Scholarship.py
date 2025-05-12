@@ -39,10 +39,9 @@ def get_scholarship(
             content = str(e)
         )        
 
-@router.get("/get-scholarships/{suggest}")
+@router.get("/scholarships")
 def get_scholarship(
     db = Depends(get_db),
-    user = Depends(get_current_user),
     suggest: bool = False,
     limit: int = 10,
     offset: int = 0

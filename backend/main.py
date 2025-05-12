@@ -6,9 +6,13 @@ from fastapi_sqlalchemy import DBSessionMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 from core.config import settings
+
+from api.v1.Profile import (
+    Education as education_router
+)
+
 from api.v1.Auth.auth import router as Auth_Router
 from api.v1.CRUD.Scholarship import router as CRUD_Scholarship_Router
-from api.v1.CRUD.Profile import router as CRUD_Profile_Router
 from api.v1.ProfileMatching.ProfileMatching import router as ProfileMatching_Router
 
 def get_application() -> FastAPI:
@@ -22,9 +26,9 @@ def get_application() -> FastAPI:
     )
     application.add_middleware(DBSessionMiddleware, db_url=settings.DATABASE_URL)
     application.include_router(Auth_Router, prefix = "/api/v1/auth", tags = ["Auth"])
-    application.include_router(CRUD_Scholarship_Router, prefix = "/api/v1/crud", tags = ["CRUD"])
-    application.include_router(CRUD_Profile_Router, prefix = "/api/v1/crud", tags = ["CRUD"])
+    application.include_router(CRUD_Scholarship_Router, prefix = "/api/v1", tags = ["CRUD"])
     application.include_router(ProfileMatching_Router, prefix = "/api/v1/ai", tags = ["Profile Matching"])
+    application.include_router(education_router.router, prefix = "/api/v1/user", tags = ["User"])
 
     return application
 
