@@ -1,77 +1,76 @@
 from typing import *
-from datetime import datetime
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from database.init_db import get_db
-from models.Education import Education
-from schemas.Profile.Education import *
+from models.Achievement import Achievement
+from schemas.Profile.Achievement import *
 from services.Auth.auth import get_current_user
 
 router = APIRouter()
 
-@router.delete("/education")
-def delete_education(
-    payload: EducationDeleteRequest,
+@router.delete("/achievement")
+def delete_achievement(
+    payload: AchievementDeleteRequest,
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success= Education.delete(
+    success = Achievement.delete(
         db = db,
         user = user,
-        education = payload
+        achievement = payload
     )
 
     if not success:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = "Xóa profile education thất bại"
+            content = "Xóa profile achievement thất bại"
         )
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
             "success": True,
-            "message": "Xóa profile education thành công",
+            "message": "Xóa profile achievement thành công",
         }
     )
 
-@router.put("/education")
-def update_education(
-    payload: EducationUpdateRequest,
+@router.put("/achievement")
+def update_achievement(
+    payload: AchievementUpdateRequest,
     db = Depends(get_db),
     user = Depends(get_current_user),
 ):
-    success, education = Education.update(
+    success, achievement = Achievement.update(
         db = db,
         user = user,
-        education = payload
+        achievement = payload
     )
 
     if not success:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = education
+            content = achievement
         )
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
             "success": True,
-            "message": "Cập nhật profile education thành công",
+            "message": "Cập nhật profile achievement thành công",
             "payload": {
-                "education": education
+                "achievement": achievement
             } 
         }
     )
 
-@router.get("/education")
-def get_education(
+@router.get("/achievement")
+def get_achievement(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, education = Education.get(
+    success, achievement = Achievement.get(
         db = db,
         user = user,
         params = {}
@@ -82,9 +81,9 @@ def get_education(
             status_code = status.HTTP_200_OK,
             content = {
                 "success": True,
-                "message": "Lấy profile education thành công",
+                "message": "Lấy profile achievement thành công",
                 "payload": {
-                    "education": education
+                    "achievement": achievement
                 }
             }
         )
@@ -94,37 +93,36 @@ def get_education(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = {
                 "success": False,
-                "message": "Lấy profile education thất bại",
-                "payload": education
+                "message": "Lấy profile achievement thất bại",
+                "payload": achievement
             }
         )
 
-@router.post("/education")
-def create_education(
-    payload: EducationCreateRequest,
+@router.post("/achievement")
+def create_achievement(
+    payload: AchievementCreateRequest,
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, education = Education.create(
+    success, achievement = Achievement.create(
         db = db,
         user = user,
-        education = payload
+        achievement = payload
     )
 
     if not success:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = education
+            content = achievement
         )
 
-    else:
-        return JSONResponse(
-            status_code = status.HTTP_200_OK,
-            content = {        
-                    "success": True, 
-                    "message": "Tạo profile education thành công",
-                    "payload": {
-                        "education": education
-                    },
-                }
-            )
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {        
+            "success": True, 
+            "message": "Tạo profile achievement thành công",
+            "payload": {
+                "achievement": achievement
+            },
+        }
+    )

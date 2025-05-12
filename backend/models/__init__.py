@@ -12,7 +12,7 @@ from .Experience import Experience
 from .FeaturedUser import FeaturedUser
 from .ProfileEvaluation import ProfileEvaluation
 from .Publication import Publication
-from .Referee import Referee
+from .Reference import Reference
 from .ScholarshipApplication import ScholarshipApplication
 from .UserPoints import UserPoints
 from .UserScholarshipBookmark import UserScholarshipBookmark

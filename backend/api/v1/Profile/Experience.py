@@ -1,77 +1,76 @@
 from typing import *
-from datetime import datetime
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from database.init_db import get_db
-from models.Education import Education
-from schemas.Profile.Education import *
+from models.Experience import Experience
+from schemas.Profile.Experience import *
 from services.Auth.auth import get_current_user
 
 router = APIRouter()
 
-@router.delete("/education")
-def delete_education(
-    payload: EducationDeleteRequest,
+@router.delete("/experience")
+def delete_experience(
+    payload: ExperienceDeleteRequest,
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success= Education.delete(
+    success= Experience.delete(
         db = db,
         user = user,
-        education = payload
+        experience = payload
     )
 
     if not success:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = "Xóa profile education thất bại"
+            content = "Xóa profile experience thất bại"
         )
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
             "success": True,
-            "message": "Xóa profile education thành công",
+            "message": "Xóa profile experience thành công",
         }
     )
 
-@router.put("/education")
-def update_education(
-    payload: EducationUpdateRequest,
+@router.put("/experience")
+def update_experience(
+    payload: ExperienceUpdateRequest,
     db = Depends(get_db),
     user = Depends(get_current_user),
 ):
-    success, education = Education.update(
+    success, experience = Experience.update(
         db = db,
         user = user,
-        education = payload
+        experience = payload
     )
 
     if not success:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = education
+            content = experience
         )
 
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
             "success": True,
-            "message": "Cập nhật profile education thành công",
+            "message": "Cập nhật profile experience thành công",
             "payload": {
-                "education": education
+                "experience": experience
             } 
         }
     )
 
-@router.get("/education")
-def get_education(
+@router.get("/experience")
+def get_experience(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, education = Education.get(
+    success, experience = Experience.get(
         db = db,
         user = user,
         params = {}
@@ -82,9 +81,9 @@ def get_education(
             status_code = status.HTTP_200_OK,
             content = {
                 "success": True,
-                "message": "Lấy profile education thành công",
+                "message": "Lấy profile experience thành công",
                 "payload": {
-                    "education": education
+                    "experience": experience
                 }
             }
         )
@@ -94,27 +93,27 @@ def get_education(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = {
                 "success": False,
-                "message": "Lấy profile education thất bại",
-                "payload": education
+                "message": "Lấy profile experience thất bại",
+                "payload": experience
             }
         )
 
-@router.post("/education")
-def create_education(
-    payload: EducationCreateRequest,
+@router.post("/experience")
+def create_experience(
+    payload: ExperienceCreateRequest,
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, education = Education.create(
+    success, experience = Experience.create(
         db = db,
         user = user,
-        education = payload
+        experience = payload
     )
 
     if not success:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = education
+            content = experience
         )
 
     else:
@@ -122,9 +121,9 @@ def create_education(
             status_code = status.HTTP_200_OK,
             content = {        
                     "success": True, 
-                    "message": "Tạo profile education thành công",
+                    "message": "Tạo profile experience thành công",
                     "payload": {
-                        "education": education
+                        "experience": experience
                     },
                 }
             )

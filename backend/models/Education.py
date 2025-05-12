@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from helpers.Enums import *
 from models.BaseClass import BareBaseModel
-from schemas.CRUD.Profile import EducationUpdateRequest, EducationCreateRequest, EducationDeleteRequest
+from schemas.Profile.Education import EducationUpdateRequest, EducationCreateRequest, EducationDeleteRequest
 
 class Education(BareBaseModel):
     __tablename__ = 'educations'
@@ -34,7 +34,7 @@ class Education(BareBaseModel):
             return False
 
     @staticmethod
-    def update(db, user, education: EducationCreateRequest):
+    def update(db, user, education: EducationUpdateRequest):
         try:
             education_record = db.query(Education).filter(
                 Education.user_id == user.id,

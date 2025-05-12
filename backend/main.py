@@ -8,7 +8,11 @@ from starlette.middleware.cors import CORSMiddleware
 from core.config import settings
 
 from api.v1.Profile import (
-    Education as education_router
+    Education as education_router,
+    Experience as experience_router,
+    Achievement as achievement_router,
+    Publication as publication_router,
+    Reference as reference_router
 )
 
 from api.v1.Auth.auth import router as Auth_Router
@@ -28,7 +32,13 @@ def get_application() -> FastAPI:
     application.include_router(Auth_Router, prefix = "/api/v1/auth", tags = ["Auth"])
     application.include_router(CRUD_Scholarship_Router, prefix = "/api/v1", tags = ["CRUD"])
     application.include_router(ProfileMatching_Router, prefix = "/api/v1/ai", tags = ["Profile Matching"])
-    application.include_router(education_router.router, prefix = "/api/v1/user", tags = ["User"])
+
+    # Profile section
+    application.include_router(education_router.router, prefix = "/api/v1/user", tags = ["User - Education"])
+    application.include_router(experience_router.router, prefix = "/api/v1/user", tags = ["User - Experience"])
+    application.include_router(achievement_router.router, prefix = "/api/v1/user", tags = ["User - Achievement"])
+    application.include_router(publication_router.router, prefix = "/api/v1/user", tags = ["User - Publication"])
+    application.include_router(reference_router.router, prefix = "/api/v1/user", tags = ["User - Reference"])
 
     return application
 
