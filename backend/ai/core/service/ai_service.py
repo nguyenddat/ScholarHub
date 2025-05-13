@@ -5,7 +5,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import os
 from typing import List, Dict, AsyncGenerator, Any
 from dotenv import load_dotenv
-from database.chat_history_service import save_chat_history, get_recent_chat_history, format_chat_history
+from database.chat_history_service import save_chat_history, get_chat_history, format_chat_history, get_next_thread_id
 from pydantic import BaseModel, Field
 from langchain_core.messages import AIMessageChunk
 from langchain.callbacks.base import BaseCallbackHandler
@@ -127,13 +127,14 @@ Example flow:
 
     return agent_executor
 
-def get_answer(question: str, thread_id: str) -> Dict:
+def get_answer(question: str, thread_id: str, user_id: str = "default_user") -> Dict:
     """
     Get answer for a question
     
     Args:
         question (str): User's question
         thread_id (str): Chat thread ID
+        user_id (str): User ID, defaults to "default_user" for backward compatibility
         
     Returns:
         str: AI's response
@@ -141,7 +142,7 @@ def get_answer(question: str, thread_id: str) -> Dict:
     agent = get_llm_and_agent()
     
     # Get recent chat history
-    history = get_recent_chat_history(thread_id)
+    history = get_chat_history(user_id, thread_id)
     chat_history = format_chat_history(history)
     
     result = agent.invoke({
@@ -151,11 +152,11 @@ def get_answer(question: str, thread_id: str) -> Dict:
     
     # Save chat history to database
     if isinstance(result, dict) and "output" in result:
-        save_chat_history(thread_id, question, result["output"])
+        save_chat_history(user_id, thread_id, question, result["output"])
     
     return result
 
-async def get_answer_stream(question: str, thread_id: str) -> AsyncGenerator[Dict, None]:
+async def get_answer_stream(question: str, thread_id: str, user_id: str = "default_user") -> AsyncGenerator[Dict, None]:
     """
     Get streaming answer for a question
     
@@ -169,6 +170,7 @@ async def get_answer_stream(question: str, thread_id: str) -> AsyncGenerator[Dic
     Args:
         question (str): User's question
         thread_id (str): Chat thread ID
+        user_id (str): User ID, defaults to "default_user" for backward compatibility
         
     Returns:
         AsyncGenerator[str, None]: Generator yielding response chunks
@@ -177,7 +179,7 @@ async def get_answer_stream(question: str, thread_id: str) -> AsyncGenerator[Dic
     agent = get_llm_and_agent()
     
     # Get recent chat history
-    history = get_recent_chat_history(thread_id)
+    history = get_chat_history(user_id, thread_id)
     chat_history = format_chat_history(history)
     
     # Variable to store complete response
@@ -205,13 +207,13 @@ async def get_answer_stream(question: str, thread_id: str) -> AsyncGenerator[Dic
     
     # Save complete response to database
     if final_answer:
-        save_chat_history(thread_id, question, final_answer)
+        save_chat_history(user_id, thread_id, question, final_answer)
 
 if __name__ == "__main__":
     import asyncio
     
     async def test():
-        async for event in get_answer_stream("hi", "test-session"):
+        async for event in get_answer_stream("hi", "test-session", "test-user"):
             print('event:', event)
         print('done')
     asyncio.run(test())
