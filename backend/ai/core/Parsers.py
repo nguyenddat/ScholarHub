@@ -28,8 +28,11 @@ class WebScrapeResponse(BaseModel):
 
 
 class ResumeExtractResponse(BaseModel):
-    ordinal_criteria: dict
-    binary_criteria: dict
+    education: dict
+    experience: dict
+    research: dict
+    achievement: dict
+    certification: dict
 
 
 class ScholarshipExtractResponse(BaseModel):

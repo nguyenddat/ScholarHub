@@ -11,52 +11,46 @@ from helpers.CriteriaWeights import cal_weights
 from services.Auth.auth import get_current_user
 from services.CRUD.Scholarship import scholarship_to_description
 from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
-from ai.SmartSearch.SmartSearch import smart_search
+from ai.Recommendation.ScholarshipRecommend import recommend_scholarship
 
 router = APIRouter()
 
-@router.get("/scholarship/smart-search")
+@router.get("/scholarships")
 def get_scholarship(
-    query: str,    
     db = Depends(get_db),
+    user = Depends(get_current_user),
+    suggest: bool = False,
+    limit: int = 10,
+    offset: int = 0
 ):
     try:
-        resp_objs = smart_search(query, db)
+        if not suggest:
+            payload = Scholarship.get(
+                db = db, 
+                mode = "all",
+                limit = limit,
+                offset = offset
+            )
+        else:
+            payload = recommend_scholarship(db = db, user = user)
+
         return JSONResponse(
             status_code = status.HTTP_200_OK,
             content = {        
                     "success": True, 
                     "message": "Lấy danh sách học bổng thành công",
                     "payload": {
-                        "scholarships": resp_objs
+                        "scholarships": payload
                     },
                 }
-        )       
+        )
 
     except Exception as e:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = str(e)
-        )        
-
-@router.get("/scholarships")
-def get_scholarship(
-    db = Depends(get_db),
-    suggest: bool = False,
-    limit: int = 10,
-    offset: int = 0
-):
-    if not suggest:
-        payload = Scholarship.get(
-            db = db, 
-            mode = "all",
-            limit = limit,
-            offset = offset
         )
-        return JSONResponse(status_code = status.HTTP_200_OK, content = payload)
 
-    else:
-        pass
 
 @router.get("/manage-scholarships")
 def get_scholarship(

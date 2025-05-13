@@ -130,20 +130,14 @@ You are an intelligent virtual assistant specialized in comparing a CV against j
 Return Format:
 ```json
 {{
-  "ordinal_criteria": {{
-    "education": {{
-        score: [score_1, score_2, score_3, score_4, score_5],
-        evidence: ["evidence 1", evidence 2"]
-    }},
-    "experience": same as education,
-    "research": same as education,
-    "achievement": same as education,
-    "certification": same as education,
+  "education": {{
+      score: [score_1, score_2, score_3, score_4, score_5],
+      evidence: ["evidence 1", evidence 2"]
   }},
-  "binary_criteria": {{
-    "gender": Gender of candidate (lower case + snake case)
-    "nationality": Nationality of candidate (lower case + snake case)
-  }}
+  "experience": same as education,
+  "research": same as education,
+  "achievement": same as education,
+  "certification": same as education,
 }}
 - Always return match_percentage. If there are no specific criteria provided in criterion_match, return that all criteria in that category are fully met. If there is no detailed binary criteria, return "".
 

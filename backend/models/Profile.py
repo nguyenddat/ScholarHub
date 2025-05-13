@@ -7,6 +7,29 @@ from sqlalchemy.dialects.postgresql import UUID
 from helpers.Enums import *
 from models.BaseClass import BareBaseModel, Base
 
+default_criteria = {
+    "education": {
+        "score": [0, 0, 0, 0, 0],
+        "evidence": []
+    },
+    "experience": {
+        "score": [0, 0, 0, 0, 0],
+        "evidence": []
+    },
+    "research": {
+        "score": [0, 0, 0, 0, 0],
+        "evidence": []
+    },
+    "achievement": {
+        "score": [0, 0, 0, 0, 0],
+        "evidence": []
+    },
+    "certification": {
+        "score": [0, 0, 0, 0, 0],
+        "evidence": []
+    },
+}
+
 class Profile(Base):
     __tablename__ = 'profiles'
 
@@ -22,7 +45,7 @@ class Profile(Base):
     country_of_residence = Column(Text)
     self_introduction = Column(Text)
 
-    criteria = Column(Text)
+    criteria = Column(Text, default=str(default_criteria))
 
     is_public = Column(Boolean, default=False)
 
