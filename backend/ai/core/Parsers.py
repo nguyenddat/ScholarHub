@@ -28,11 +28,7 @@ class WebScrapeResponse(BaseModel):
 
 
 class ResumeExtractResponse(BaseModel):
-    education: dict
-    experience: dict
-    research: dict
-    achievement: dict
-    certification: dict
+    criteria: dict
 
 
 class ScholarshipExtractResponse(BaseModel):

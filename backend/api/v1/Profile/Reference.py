@@ -7,6 +7,7 @@ from database.init_db import get_db
 from models.Reference import Reference
 from schemas.Profile.Reference import *
 from services.Auth.auth import get_current_user
+from services.ProfileManager import profile_manager
 
 router = APIRouter()
 
@@ -28,6 +29,7 @@ def create_reference(
             }
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
@@ -85,6 +87,7 @@ def update_reference(
             }
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
@@ -112,7 +115,8 @@ def delete_reference(
                 "message": "Xóa reference thất bại"
             }
         )
-
+    
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={

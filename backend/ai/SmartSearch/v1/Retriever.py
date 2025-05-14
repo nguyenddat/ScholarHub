@@ -14,7 +14,7 @@ from helpers.DataLoader import data_loader
 class Retriever:
     def __init__(self):
         self.t = 0.6
-        self.save_local = os.path.join(settings.BASE_DIR, "artifacts", "vectordb")
+        self.save_local = os.path.join(settings.BASE_DIR, "artifacts", "chatbot", "vectordb")
         self.build()
 
     def get_relevant_by_threshold(self, query: str) -> str:
@@ -47,6 +47,10 @@ class Retriever:
         else:
             db = next(get_db())
             texts = data_loader._load(db = db)
+            if len(texts) == 0:
+                self.retriever = None
+                return self
+
             index = faiss.IndexFlatL2(1536)
 
             vector_store = FAISS(
@@ -59,13 +63,15 @@ class Retriever:
             vector_store.add_documents(texts)
             vector_store.save_local(self.save_local)
             self.retriever = VectorStoreRetriever(vectorstore=vector_store)
-        
+            db.close()
+
         return self
 
     def re_ingest(self):
-        shutil.rmtree(self.save_local)
+        if os.path.exists(self.save_local):
+            shutil.rmtree(self.save_local)
+            
         self.build()
-        return self
 
 
 retriever = Retriever()

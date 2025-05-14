@@ -3,15 +3,15 @@ from datetime import date
 from pydantic import BaseModel, Field
 
 class PersonalCreateRequest(BaseModel):
-    first_name: str
+    first_name: Optional[str] = None 
     middle_name: Optional[str] = None
-    last_name: str
-    gender: str
+    last_name: Optional[str] = None
+    gender: Optional[str] = None
     job_title: Optional[str] = "student"
-    contact_email: str
-    date_of_birth: date
-    nationality: str
-    country_of_residence: str
+    contact_email: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    nationality: Optional[str] = None
+    country_of_residence: Optional[str] = None
     self_introduction: Optional[str] = None
 
 class PersonalUpdateRequest(BaseModel):

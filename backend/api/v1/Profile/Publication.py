@@ -7,6 +7,8 @@ from database.init_db import get_db
 from models.Publication import Publication
 from schemas.Profile.Publication import *
 from services.Auth.auth import get_current_user
+from services.ProfileManager import profile_manager
+
 
 router = APIRouter()
 
@@ -28,6 +30,7 @@ def create_publication(
             }
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
@@ -85,6 +88,7 @@ def update_publication(
             }
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
@@ -113,6 +117,7 @@ def delete_publication(
             }
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={

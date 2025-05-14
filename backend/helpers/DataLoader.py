@@ -38,7 +38,7 @@ class DataLoader:
 
             file_path = os.path.join(settings.BASE_DIR, "artifacts", "chatbot", "txt_data", f"{scholarship["id"]}.txt")
             with open(file_path, "w", encoding="utf-8") as f:
-                f.write(f"""{scholarship["id"]}: {summary}""")
+                f.write(f"""{scholarship["id"]}: {summary["summary"]}""")
 
             data = []
             loader = TextLoader(file_path = file_path, encoding = "utf-8")
@@ -61,7 +61,7 @@ class DataLoader:
 
         file_path = os.path.join(settings.BASE_DIR, "artifacts", "chatbot", "txt_data", f"{scholarship["id"]}.txt")
         with open(file_path, "w", encoding="utf-8") as f:
-            f.write(f"""{scholarship["id"]}: {summary}""")
+            f.write(f"""{scholarship["id"]}: {summary["summary"]}""")
 
 
     def generate_scholarship_description(self, scholarship):

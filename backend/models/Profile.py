@@ -5,6 +5,15 @@ from sqlalchemy.dialects.postgresql import UUID
 from helpers.Enums import *
 from models.BaseClass import BareBaseModel, Base
 from schemas.Profile.Personal import *
+from models import (
+    Education,
+    Achievement,
+    Experience,
+    Publication,
+    Reference,
+    User
+)
+from ai.core.chain import get_chat_completion
 
 default_criteria = {
     "education": {
@@ -49,6 +58,66 @@ class Profile(Base):
     is_public = Column(Boolean, default=False)
 
     user = relationship("User", back_populates="profile")
+
+    
+    @staticmethod
+    def update_criteria(db, user_id):
+        user = db.query(User).filter(User.id == user_id).first()
+        _, educations = Education.get(db, user)
+        _, experiences = Experience.get(db, user)
+        _, publications = Publication.get(db, user)
+        _, references = Reference.get(db, user)
+        _, achievements = Achievement.get(db, user)
+        
+        # Ghép dữ liệu thành một đoạn văn CV mô phỏng
+        resume_text = ""
+
+        if educations:
+            resume_text += "## Education\n"
+            for edu in educations:
+                resume_text += f"- {edu['degree_type']} in {edu['major']} at {edu['institution']}, "
+                resume_text += f"Graduation: {edu['graduation_year']}, GPA: {edu['gpa']}\n"
+
+        if experiences:
+            resume_text += "\n## Experience\n"
+            for exp in experiences:
+                resume_text += f"- {exp['title']} at {exp['organization']} ({exp['start_date']} - {exp['end_date'] or 'Present'})\n"
+                resume_text += f"  Location: {exp['location']}\n"
+                if exp['description']:
+                    resume_text += f"  Description: {exp['description']}\n"
+
+        if publications:
+            resume_text += "\n## Publications\n"
+            for pub in publications:
+                resume_text += f"- {pub['title']} ({pub['type']}), {pub['venue_name']}, {pub['publish_date']}\n"
+
+        if achievements:
+            resume_text += "\n## Achievements\n"
+            for ach in achievements:
+                resume_text += f"- {ach['title']} awarded by {ach['issuer']} on {ach['award_date']}\n"
+                if ach['description']:
+                    resume_text += f"  Description: {ach['description']}\n"
+
+        if references:
+            resume_text += "\n## References\n"
+            for ref in references:
+                resume_text += f"- {ref['name']} ({ref['job_title']} at {ref['organization']}), {ref['relationship']}, Email: {ref['email']}\n"
+
+        # Gửi đến LLM để đánh giá
+        criteria_result = get_chat_completion(
+            task="resume_extract",
+            params={
+                "resume": resume_text,
+                "question": "Evaluate the information from the CV against these criteria."
+            }
+        )
+
+        profile_record = db.query(Profile).filter(Profile.user_id == user.id).first()
+        profile_record.criteria = criteria_result["criteria"]
+        db.commit()
+        db.refresh(profile_record)
+        return True, profile_record
+
 
     @staticmethod
     def get(db, user):

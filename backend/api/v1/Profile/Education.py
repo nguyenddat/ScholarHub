@@ -8,6 +8,7 @@ from database.init_db import get_db
 from models.Education import Education
 from schemas.Profile.Education import *
 from services.Auth.auth import get_current_user
+from services.ProfileManager import profile_manager
 
 router = APIRouter()
 
@@ -23,6 +24,7 @@ def delete_education(
         education = payload
     )
 
+    profile_manager.record_request(user.id)
     if not success:
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -55,6 +57,7 @@ def update_education(
             content = education
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
@@ -90,6 +93,7 @@ def get_education(
         )
 
     else:
+        profile_manager.record_request(user.id)
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = {
@@ -118,6 +122,7 @@ def create_education(
         )
 
     else:
+        profile_manager.record_request(user.id)
         return JSONResponse(
             status_code = status.HTTP_200_OK,
             content = {        

@@ -7,6 +7,8 @@ from database.init_db import get_db
 from models.Achievement import Achievement
 from schemas.Profile.Achievement import *
 from services.Auth.auth import get_current_user
+from services.ProfileManager import profile_manager
+
 
 router = APIRouter()
 
@@ -28,6 +30,7 @@ def delete_achievement(
             content = "Xóa profile achievement thất bại"
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
@@ -54,6 +57,7 @@ def update_achievement(
             content = achievement
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
@@ -116,6 +120,7 @@ def create_achievement(
             content = achievement
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {        

@@ -8,8 +8,10 @@ from fastapi.responses import JSONResponse
 
 from core.config import settings
 from models.User import User
+from models.Profile import Profile
 from database.init_db import get_db
 from schemas.Auth.auth import UserCreate, UserResponse, Token, RefreshToken
+from schemas.Profile.Personal import *
 from services.Auth.auth import get_current_user
 from services.Auth.utils import create_access_token, create_refresh_token
 
@@ -24,7 +26,7 @@ async def register(
     
     """Đăng ký người dùng mới"""
     try:
-        success, user = User.create_user(db, user_data)
+        success, user = User.create_user(db, user_data)        
         if not success:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,

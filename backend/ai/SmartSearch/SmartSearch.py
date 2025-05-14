@@ -14,7 +14,7 @@ def search(db, query):
     )
 
     resp_objs = []
-    for scholarship_id in scholarship_ids:
+    for scholarship_id in scholarship_ids["scholarship_ids"]:
         scholarship = db.query(Scholarship).filter(Scholarship.id == scholarship_id).first()
         resp_objs.append({
             "id": str(scholarship.id),

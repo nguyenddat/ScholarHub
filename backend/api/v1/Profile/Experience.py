@@ -7,6 +7,8 @@ from database.init_db import get_db
 from models.Experience import Experience
 from schemas.Profile.Experience import *
 from services.Auth.auth import get_current_user
+from services.ProfileManager import profile_manager
+
 
 router = APIRouter()
 
@@ -28,6 +30,7 @@ def delete_experience(
             content = "Xóa profile experience thất bại"
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
@@ -54,6 +57,7 @@ def update_experience(
             content = experience
         )
 
+    profile_manager.record_request(user.id)
     return JSONResponse(
         status_code = status.HTTP_200_OK,
         content = {
@@ -117,6 +121,7 @@ def create_experience(
         )
 
     else:
+        profile_manager.record_request(user.id)
         return JSONResponse(
             status_code = status.HTTP_200_OK,
             content = {        

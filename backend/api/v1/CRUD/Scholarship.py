@@ -10,6 +10,7 @@ from schemas.CRUD.Scholarship import PostScholarshipRequest
 from helpers.CriteriaWeights import cal_weights
 from helpers.DataLoader import data_loader
 from services.Auth.auth import get_current_user
+from services.RetrieverManager import retriever_manager
 from services.CRUD.Scholarship import scholarship_to_description
 from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
 from ai.Recommendation.ScholarshipRecommend import recommend_scholarship
@@ -114,7 +115,7 @@ def post_scholarship(
             content = scholarship
         )
     
-    data_loader._add(scholarship)
+    retriever_manager.record_request()
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content = {
