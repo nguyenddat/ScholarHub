@@ -16,7 +16,7 @@ login_payload = {
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
 response = requests.post(login_url, data=login_payload, headers=headers)
 token = response.json()["payload"]["access_token"]
-post_url = "http://localhost:8000/api/v1/crud/post-scholarship"
+post_url = "http://localhost:8000/api/v1/post-scholarship"
 post_headers = {
     "Authorization": f"Bearer {token}",
     "Content-Type": "application/json"

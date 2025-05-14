@@ -49,6 +49,20 @@ class DataLoader:
             texts += self.text_splitter.create_documents(data)
         
         return texts
+    
+    def _add(self, scholarship):
+        summary = get_chat_completion(
+            task = "scholarship_summary",
+            params = {
+                "description": self.generate_scholarship_description(scholarship),
+                "question": "Summary the scholarship above and strictly follow the rule."
+            }
+        )
+
+        file_path = os.path.join(settings.BASE_DIR, "artifacts", "chatbot", "txt_data", f"{scholarship["id"]}.txt")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(f"""{scholarship["id"]}: {summary}""")
+
 
     def generate_scholarship_description(self, scholarship):
         description = f"""🎓 **{scholarship["title"]}** ({scholarship["type"]})  

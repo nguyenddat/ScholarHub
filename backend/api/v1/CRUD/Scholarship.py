@@ -8,6 +8,7 @@ from database.init_db import get_db
 from models.Scholarship import Scholarship
 from schemas.CRUD.Scholarship import PostScholarshipRequest
 from helpers.CriteriaWeights import cal_weights
+from helpers.DataLoader import data_loader
 from services.Auth.auth import get_current_user
 from services.CRUD.Scholarship import scholarship_to_description
 from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
@@ -103,7 +104,7 @@ def post_scholarship(
     scholarship_description = scholarship_to_description(payload)
     scholarship_criteria = extract_scholarship(scholarship_description)
     
-    data["user_id"] = user.id
+    data["submitted_by"] = user.id
     data["posted_at"] = posted_at
     data["scholarship_criteria"] = str(scholarship_criteria)
     scholarship, success = Scholarship.create(db = db, data = data)
@@ -112,7 +113,8 @@ def post_scholarship(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = scholarship
         )
-
+    
+    data_loader._add(scholarship)
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content = {
