@@ -40,7 +40,7 @@ class Scholarship(BareBaseModel):
     original_url = Column(Text)
     posted_at = Column(DateTime, default=datetime.utcnow)
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    submitted_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     user = relationship("User", back_populates="scholarship")
 
     @staticmethod

@@ -17,6 +17,26 @@ services:
     networks:
       - fast_api
 
+  neo4j:
+    container_name: scholarhub-neo4j
+    image: neo4j:5
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      NEO4J_AUTH: neo4j/password123
+    volumes:
+      - ./graph_database/data:/data
+      - ./graph_database/import:/import
+      - ./graph_database/plugins:/plugins
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7474"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - fast_api
+
   backend:
     container_name: scholarhub_backend
     build:
@@ -32,7 +52,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    entrypoint: ["/bin/sh", "-c", "./wait-for-db.sh uvicorn main:app --host 0.0.0.0 --port 8000"]
+    entrypoint: ["/bin/sh", "-c", "./wait-for-db.sh uvicorn main:app --host 0.0.0.0 --port 8000 --reload"]
     networks:
       - fast_api
   

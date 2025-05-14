@@ -62,7 +62,7 @@ class Education(BareBaseModel):
                 "institution": education_record.institution,
                 "major": education_record.major,
                 "degree_type": education_record.degree_type,
-                "gpa": education_record.gpa
+                "gpa": float(education_record.gpa) if education_record.gpa is not None else None
             }
 
         except Exception as err:
@@ -80,7 +80,7 @@ class Education(BareBaseModel):
                 institution = education.institution,
                 major = education.major,
                 degree_type = education.degree_type,
-                gpa = education
+                gpa = education.gpa
             )
 
             db.add(new_edu)
@@ -94,7 +94,7 @@ class Education(BareBaseModel):
                 "institution": new_edu.institution,
                 "major": new_edu.major,
                 "degree_type": new_edu.degree_type,
-                "gpa": new_edu.gpa
+                "gpa": float(new_edu.gpa) if new_edu.gpa is not None else None
             }
 
         except Exception as e:
@@ -124,7 +124,7 @@ class Education(BareBaseModel):
             "institution": education.institution,
             "major": education.major,
             "degree_type": education.degree_type,
-            "gpa": education.gpa
+            "gpa": float(education.gpa) if education.gpa is not None else None
         } for education in educations]
 
 

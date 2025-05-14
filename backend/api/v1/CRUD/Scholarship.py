@@ -63,7 +63,7 @@ def get_scholarship(
         payload = Scholarship.get(
             db = db, 
             mode = "filter",
-            params = {"user_id": user.id},
+            params = {"submitted_by": user.id},
             limit = limit,
             offset = offset
         )

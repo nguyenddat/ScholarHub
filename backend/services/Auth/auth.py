@@ -8,8 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from core.config import settings
 from models.User import User
 from database.init_db import get_db
-from schemas.Auth.auth import TokenData, UserCreate
-from services.Auth.utils import verify_password, get_password_hash
+from schemas.Auth.auth import TokenData
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 
@@ -33,7 +32,7 @@ async def get_current_user(
         if user_id is None:
             raise credentials_exception
         token_data = TokenData(user_id=user_id)
-    except JWTError:
+    except JWTError as err:
         raise credentials_exception
     
     user = db.query(User).filter(User.id == token_data.user_id).first()
