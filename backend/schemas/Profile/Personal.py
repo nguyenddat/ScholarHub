@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import date
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 class PersonalCreateRequest(BaseModel):
@@ -9,7 +9,7 @@ class PersonalCreateRequest(BaseModel):
     gender: Optional[str] = None
     job_title: Optional[str] = "student"
     contact_email: Optional[str] = None
-    date_of_birth: Optional[str] = None
+    date_of_birth: Optional[str] = str(datetime.today().strftime('%Y-%m-%d'))
     nationality: Optional[str] = None
     country_of_residence: Optional[str] = None
     self_introduction: Optional[str] = None
@@ -21,7 +21,7 @@ class PersonalUpdateRequest(BaseModel):
     gender: Optional[str] = None
     job_title: Optional[str] = None
     contact_email: Optional[str] = None
-    date_of_birth: Optional[date] = None
+    date_of_birth: Optional[str] = str(datetime.today().strftime('%Y-%m-%d'))
     nationality: Optional[str] = None
     country_of_residence: Optional[str] = None
     self_introduction: Optional[str] = None

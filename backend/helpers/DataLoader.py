@@ -78,7 +78,6 @@ class DataLoader:
 
         📋 **Selection Criteria:**  
         - 🎓 Education: {scholarship["education_criteria"]} (Weight: {scholarship["education_weights"]})  
-        - 👤 Personal: {scholarship["personal_criteria"]} (Weight: {scholarship["personal_weights"]})  
         - 💼 Experience: {scholarship["experience_criteria"]} (Weight: {scholarship["experience_weights"]})  
         - 🔬 Research: {scholarship["research_criteria"]} (Weight: {scholarship["research_weights"]})  
         - 📜 Certification: {scholarship["certification_criteria"]} (Weight: {scholarship["certification_weights"]})  

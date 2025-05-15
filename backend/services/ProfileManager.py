@@ -5,7 +5,7 @@ from database.init_db import get_db
 from models import Profile
 
 class ProfileManager:
-    def __init__(self, time_limit: int = 30):
+    def __init__(self, time_limit: int = 3600):
         self.profiles = []
         self.last_request_time = []
 
@@ -54,5 +54,16 @@ class ProfileManager:
 
         if len(self.profiles) == 0:
             self.wait_for_update = False
+
+    def re_evaluate(self, db, user_id):
+        Profile.update_criteria(db, user_id)
+
+        if user_id in self.profiles:
+            index = self.profiles.index(user_id)
+            del self.profiles[index]
+            del self.last_request_time[index]
+
+            if len(self.profiles) == 0:
+                self.wait_for_update = False
 
 profile_manager = ProfileManager()

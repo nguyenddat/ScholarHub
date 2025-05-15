@@ -13,7 +13,9 @@ from api.v1.Profile import (
     Achievement as achievement_router,
     Publication as publication_router,
     Reference as reference_router,
-    Personal as personal_router
+    Personal as personal_router,
+    Profile as profile_router,
+    Certification as certification_router
 )
 
 from api.v1.Auth.auth import router as Auth_Router
@@ -46,6 +48,8 @@ def get_application() -> FastAPI:
     application.include_router(publication_router.router, prefix = "/api/v1/user", tags = ["User - Publication"])
     application.include_router(reference_router.router, prefix = "/api/v1/user", tags = ["User - Reference"])
     application.include_router(personal_router.router, prefix = "/api/v1/user", tags = ["User - Personal"])
+    application.include_router(profile_router.router, prefix = "/api/v1/user", tags = ["User - Profile"])
+    application.include_router(certification_router.router, prefix = "/api/v1/user", tags = ["User - Certification"])
 
     return application
 

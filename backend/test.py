@@ -11,7 +11,7 @@ with open(os.path.join(settings.BASE_DIR, "artifacts", "WebScrape", "data1.json"
 login_url = "http://localhost:8000/api/v1/auth/login"
 login_payload = {
     "username": "ript@gmail.com",
-    "password": "ript!@#123"
+    "password": "Ript!@#123"
 }
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
 response = requests.post(login_url, data=login_payload, headers=headers)
@@ -25,11 +25,10 @@ post_headers = {
 for scholarship in tqdm(data, desc = "Posting Scholarship"):
     criteria = {
         0: "education_criteria",
-        1: "personal_criteria",
-        2: "experience_criteria",
-        3: "research_criteria",
-        4: "certification_criteria",
-        5: "achievement_criteria"
+        1: "experience_criteria",
+        2: "research_criteria",
+        3: "certification_criteria",
+        4: "achievement_criteria"
     }
 
     # Gán weights

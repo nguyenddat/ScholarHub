@@ -9,9 +9,6 @@ def get_chat_completion(task: str, params={}):
     chain = prompt | llm | parser
 
     response = chain.invoke(params).dict()
-
-    with open("./test.txt", "w") as file:
-        file.write(prompt.format(**params))
     return response
 
 def get_prompt_template(task):

@@ -10,6 +10,7 @@ from core.config import settings
 from models.User import User
 from models.Profile import Profile
 from database.init_db import get_db
+from helpers.DictConvert import to_dict
 from schemas.Auth.auth import UserCreate, UserResponse, Token, RefreshToken
 from schemas.Profile.Personal import *
 from schemas.Profile.Personal import PersonalCreateRequest
@@ -27,7 +28,7 @@ async def register(
     
     """Đăng ký người dùng mới"""
     try:
-        success, user = User.create_user(db, user_data)        
+        success, user = User.create_user(db, user_data)       
         if not success:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -41,17 +42,21 @@ async def register(
             )
 
         else:
-            profile = Profile.create(db = db, user = user, profile = PersonalCreateRequest())
-            return JSONResponse(
-                status_code=status.HTTP_201_CREATED,
-                content={
-                    "success": True, 
-                    "message": "Đăng ký thành công", 
-                    "payload": {
-                       "user": user
+            try:
+                profile = Profile.create(db = db, user = user, profile = PersonalCreateRequest())
+                return JSONResponse(
+                    status_code=status.HTTP_201_CREATED,
+                    content={
+                        "success": True, 
+                        "message": "Đăng ký thành công", 
+                        "payload": {
+                        "user": to_dict(user)
+                        }
                     }
-                }
-            )
+                )
+
+            except Exception as err:
+                print(str(err))
     
     except Exception as e:
         return JSONResponse(

@@ -10,7 +10,7 @@ class ExperienceCreateRequest(BaseModel):
     title: str
     organization: str
     location: Optional[str] = None
-    start_date: date
+    start_date: Optional[date] = None
     end_date: Optional[date] = None
     is_ongoing: bool = False
     description: Optional[str] = None

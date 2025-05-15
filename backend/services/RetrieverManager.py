@@ -4,7 +4,7 @@ import threading
 from ai.SmartSearch.v1.Retriever import retriever
 
 class RetrieverManager:
-    def __init__(self, request_limit: int = 30, time_limit: int = 30):
+    def __init__(self, request_limit: int = 100, time_limit: int = 30):
         self.retriever = retriever
 
         self.wait_for_ingest = False

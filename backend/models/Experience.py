@@ -23,71 +23,44 @@ class Experience(BareBaseModel):
 
     @staticmethod
     def create(db, user, experience: ExperienceCreateRequest):
-        try:
-            new_exp = Experience(
-                user_id=user.id,
-                type=experience.type,
-                title=experience.title,
-                organization=experience.organization,
-                location=experience.location,
-                start_date=experience.start_date,
-                end_date=experience.end_date,
-                is_ongoing=experience.is_ongoing,
-                description=experience.description
-            )
-            db.add(new_exp)
-            db.commit()
-            db.refresh(new_exp)
-            return True, {
-                "id": str(new_exp.id),
-                "type": new_exp.type,
-                "title": new_exp.title,
-                "organization": new_exp.organization,
-                "location": new_exp.location,
-                "start_date": new_exp.start_date,
-                "end_date": new_exp.end_date,
-                "is_ongoing": new_exp.is_ongoing,
-                "description": new_exp.description
-            }
-        except Exception as e:
-            return False, str(e)
+        new_exp = Experience(
+            user_id=user.id,
+            type=experience.type,
+            title=experience.title,
+            organization=experience.organization,
+            location=experience.location,
+            start_date=experience.start_date,
+            end_date=experience.end_date,
+            is_ongoing=experience.is_ongoing,
+            description=experience.description
+        )
+        db.add(new_exp)
+        db.commit()
+        db.refresh(new_exp)
+        return to_dict(new_exp)
 
     @staticmethod
     def update(db, user, experience: ExperienceUpdateRequest):
-        try:
-            experience_record = db.query(Experience).filter(
-                Experience.user_id == user.id,
-                Experience.id == experience.id
-            ).first()
+        experience_record = db.query(Experience).filter(
+            Experience.user_id == user.id,
+            Experience.id == experience.id
+        ).first()
 
-            if not experience_record:
-                return True, None
+        if not experience_record:
+            return True, None
 
-            experience_record.type = experience.type
-            experience_record.title = experience.title
-            experience_record.organization = experience.organization
-            experience_record.location = experience.location
-            experience_record.start_date = experience.start_date
-            experience_record.end_date = experience.end_date
-            experience_record.is_ongoing = experience.is_ongoing
-            experience_record.description = experience.description
+        experience_record.type = experience.type
+        experience_record.title = experience.title
+        experience_record.organization = experience.organization
+        experience_record.location = experience.location
+        experience_record.start_date = experience.start_date
+        experience_record.end_date = experience.end_date
+        experience_record.is_ongoing = experience.is_ongoing
+        experience_record.description = experience.description
 
-            db.commit()
-            db.refresh(experience_record)
-            return True, {
-                "id": str(experience_record.id),
-                "type": experience_record.type,
-                "title": experience_record.title,
-                "organization": experience_record.organization,
-                "location": experience_record.location,
-                "start_date": experience_record.start_date,
-                "end_date": experience_record.end_date,
-                "is_ongoing": experience_record.is_ongoing,
-                "description": experience_record.description
-            }
-
-        except Exception as err:
-            return False, str(err)
+        db.commit()
+        db.refresh(experience_record)
+        return to_dict(experience_record)
 
     @staticmethod
     def delete(db, user, experience: ExperienceDeleteRequest):

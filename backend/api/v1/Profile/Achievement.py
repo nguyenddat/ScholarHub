@@ -80,9 +80,7 @@ def get_achievement(
             user = user,
             params = {}
         )
-    
-    except Exception as err:
-        print(err)
+
         return JSONResponse(
             status_code = status.HTTP_200_OK,
             content = {
@@ -93,15 +91,17 @@ def get_achievement(
                 }
             }
         )
-
-    return JSONResponse(
-        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content = {
-            "success": False,
-            "message": "Lấy profile achievement thất bại",
-            "payload": achievement
-        }
-    )
+    
+    except Exception as err:
+        print(err)
+        return JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content = {
+                "success": False,
+                "message": "Lấy profile achievement thất bại",
+                "payload": None
+            }
+        )
 
 @router.post("/achievement")
 def create_achievement(

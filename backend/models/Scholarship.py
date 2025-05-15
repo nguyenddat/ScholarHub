@@ -29,7 +29,6 @@ class Scholarship(BareBaseModel):
     achievement_criteria = Column(Text)
 
     education_weights = Column(Float)
-    personal_weights = Column(Float)
     experience_weights = Column(Float)
     research_weights = Column(Float)
     certification_weights = Column(Float)
@@ -103,7 +102,6 @@ class Scholarship(BareBaseModel):
                 "certification_criteria": scholarship.certification_criteria,
                 "achievement_criteria": scholarship.achievement_criteria,
                 "education_weights": scholarship.education_weights,
-                "personal_weights": scholarship.personal_weights,
                 "experience_weights": scholarship.experience_weights,
                 "research_weights": scholarship.research_weights,
                 "certification_weights": scholarship.certification_weights,

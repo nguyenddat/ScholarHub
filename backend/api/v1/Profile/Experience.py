@@ -45,62 +45,59 @@ def update_experience(
     db = Depends(get_db),
     user = Depends(get_current_user),
 ):
-    success, experience = Experience.update(
-        db = db,
-        user = user,
-        experience = payload
-    )
-
-    if not success:
-        return JSONResponse(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = experience
+    try:
+        experience = Experience.update(
+            db = db,
+            user = user,
+            experience = payload
         )
 
-    profile_manager.record_request(user.id)
-    return JSONResponse(
-        status_code = status.HTTP_200_OK,
-        content = {
-            "success": True,
-            "message": "Cập nhật profile experience thành công",
-            "payload": {
-                "experience": experience
-            } 
-        }
-    )
+        profile_manager.record_request(user.id)
+        return JSONResponse(
+            status_code = status.HTTP_200_OK,
+            content = {
+                "success": True,
+                "message": "Cập nhật profile experience thành công",
+                "payload": {
+                    "experience": experience
+                } 
+            }
+        )
+    
+    except Exception as err:
+        print(str(err))
+        return JSONResponse(
+            status_code=500,
+            content = {
+                "success": False,
+                "message": "Cập nhật profile experience thất bại",
+                "payload": {
+                    "experience": experience
+                } 
+            }
+        )
 
 @router.get("/experience")
 def get_experience(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, experience = Experience.get(
+    experience = Experience.get(
         db = db,
         user = user,
         params = {}
     )
 
-    if success:
-        return JSONResponse(
-            status_code = status.HTTP_200_OK,
-            content = {
-                "success": True,
-                "message": "Lấy profile experience thành công",
-                "payload": {
-                    "experience": experience
-                }
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {
+            "success": True,
+            "message": "Lấy profile experience thành công",
+            "payload": {
+                "experience": experience
             }
-        )
-
-    else:
-        return JSONResponse(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = {
-                "success": False,
-                "message": "Lấy profile experience thất bại",
-                "payload": experience
-            }
-        )
+        }
+    )
 
 @router.post("/experience")
 def create_experience(
@@ -108,27 +105,20 @@ def create_experience(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, experience = Experience.create(
+    experience = Experience.create(
         db = db,
         user = user,
         experience = payload
     )
 
-    if not success:
-        return JSONResponse(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = experience
+    profile_manager.record_request(user.id)
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {        
+                "success": True, 
+                "message": "Tạo profile experience thành công",
+                "payload": {
+                    "experience": experience
+                },
+            }
         )
-
-    else:
-        profile_manager.record_request(user.id)
-        return JSONResponse(
-            status_code = status.HTTP_200_OK,
-            content = {        
-                    "success": True, 
-                    "message": "Tạo profile experience thành công",
-                    "payload": {
-                        "experience": experience
-                    },
-                }
-            )

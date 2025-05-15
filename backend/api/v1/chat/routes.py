@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from ai.core.service.ai_service import get_answer, get_answer_stream
-from database.chat_history_service import get_next_thread_id, get_user_threads, get_chat_history
 import json
 from typing import AsyncGenerator, Dict, Optional, List, Any
+
+from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import StreamingResponse, JSONResponse
+
+from database.chat_history_service import get_next_thread_id, get_user_threads, get_chat_history
+from ai.core.service.ai_service import get_answer, get_answer_stream
 
 router = APIRouter()
 
@@ -35,7 +37,15 @@ async def list_user_threads(request: ThreadHistoryRequest):
     """
     try:
         threads = get_user_threads(request.user_id, request.limit)
-        return {"threads": threads}
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Thanh cong",
+                "payload": {"threads": threads}
+            }
+        )
+    
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -55,7 +65,15 @@ async def get_thread_history(
     """
     try:
         history = get_chat_history(user_id, thread_id, limit, offset)
-        return {"messages": history}
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Thanh cong",
+                "payload": {"messages": history}
+            }
+        )
+
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -70,7 +88,15 @@ async def new_thread(request: ThreadRequest):
     """
     try:
         thread_id = get_next_thread_id(request.user_id)
-        return ThreadResponse(thread_id=thread_id)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Tao thanh cong",
+                "payload": ThreadResponse(thread_id=thread_id)
+            }
+        )
+
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -90,7 +116,14 @@ async def chat(request: ChatRequest):
         if not isinstance(result, dict) or "output" not in result:
             raise ValueError("Invalid response format from get_answer")
 
-        return ChatResponse(answer=result["output"], thread_id=thread_id)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Chat thanh cong",
+                "payload": ChatResponse(answer=result["output"], thread_id=thread_id)
+            }
+        )
     except Exception as e:
         raise HTTPException(
             status_code=500, 
