@@ -4,6 +4,7 @@ from sqlalchemy import *
 from sqlalchemy.dialects.postgresql import UUID
 
 from helpers.Enums import *
+from helpers.DictConvert import to_dict
 from models.BaseClass import BareBaseModel, Base
 from schemas.Profile.Experience import ExperienceCreateRequest, ExperienceUpdateRequest, ExperienceDeleteRequest
 
@@ -105,27 +106,11 @@ class Experience(BareBaseModel):
 
     @staticmethod
     def get(db, user, params={}):
-        success = False
         base_query = db.query(Experience).filter(Experience.user_id == user.id)
-        try:
-            if params:
-                for key, value in params.items():
-                    base_query = base_query.filter(getattr(Experience, key) == value)
+        if params:
+            for key, value in params.items():
+                base_query = base_query.filter(getattr(Experience, key) == value)
 
             experiences = base_query.all()
-            success = True
-
-        except Exception as e:
-            return False, str(e)
-
-        return success, [{
-            "id": str(exp.id),
-            "type": exp.type,
-            "title": exp.title,
-            "organization": exp.organization,
-            "location": exp.location,
-            "start_date": exp.start_date,
-            "end_date": exp.end_date,
-            "is_ongoing": exp.is_ongoing,
-            "description": exp.description
-        } for exp in experiences]
+            
+        return [to_dict(exp) for exp in experiences]

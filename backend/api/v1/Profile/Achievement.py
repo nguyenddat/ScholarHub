@@ -18,13 +18,11 @@ def delete_achievement(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success = Achievement.delete(
-        db = db,
-        user = user,
-        achievement = payload
-    )
+    try:
+        Achievement.delete(db, user,payload)
 
-    if not success:
+    except Exception as err:
+        print(err)
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = "Xóa profile achievement thất bại"
@@ -45,16 +43,18 @@ def update_achievement(
     db = Depends(get_db),
     user = Depends(get_current_user),
 ):
-    success, achievement = Achievement.update(
-        db = db,
-        user = user,
-        achievement = payload
-    )
-
-    if not success:
+    try:
+        achievement = Achievement.update(
+            db = db,
+            user = user,
+            achievement = payload
+        )
+    
+    except Exception as err:
+        print(err)
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = achievement
+            content = err
         )
 
     profile_manager.record_request(user.id)
@@ -74,13 +74,15 @@ def get_achievement(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, achievement = Achievement.get(
-        db = db,
-        user = user,
-        params = {}
-    )
-
-    if success:
+    try:
+        achievement = Achievement.get(
+            db = db,
+            user = user,
+            params = {}
+        )
+    
+    except Exception as err:
+        print(err)
         return JSONResponse(
             status_code = status.HTTP_200_OK,
             content = {
@@ -92,15 +94,14 @@ def get_achievement(
             }
         )
 
-    else:
-        return JSONResponse(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = {
-                "success": False,
-                "message": "Lấy profile achievement thất bại",
-                "payload": achievement
-            }
-        )
+    return JSONResponse(
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content = {
+            "success": False,
+            "message": "Lấy profile achievement thất bại",
+            "payload": achievement
+        }
+    )
 
 @router.post("/achievement")
 def create_achievement(
@@ -108,13 +109,15 @@ def create_achievement(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, achievement = Achievement.create(
-        db = db,
-        user = user,
-        achievement = payload
-    )
+    try:
+        achievement = Achievement.create(
+            db = db,
+            user = user,
+            achievement = payload
+        )
 
-    if not success:
+    except Exception as err:
+        print(err)
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = achievement

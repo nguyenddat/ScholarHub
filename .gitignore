@@ -175,4 +175,4 @@ cython_debug/
 
 /database/
 /graph_database/
-/backend/artifacts/chatbot/
+/chatbot/

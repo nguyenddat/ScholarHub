@@ -1,6 +1,7 @@
 from sqlalchemy import *
 from sqlalchemy.dialects.postgresql import UUID
 
+from helpers.DictConvert import to_dict
 from models.BaseClass import BareBaseModel, Base
 from schemas.Profile.Reference import ReferenceCreateRequest, ReferenceUpdateRequest, ReferenceDeleteRequest
 
@@ -93,25 +94,10 @@ class Reference(BareBaseModel):
 
     @staticmethod
     def get(db, user, params={}):
-        success = False
         base_query = db.query(Reference).filter(Reference.user_id == user.id)
-        try:
-            if params:
-                for key, value in params.items():
-                    base_query = base_query.filter(getattr(Reference, key) == value)
+        if params:
+            for key, value in params.items():
+                base_query = base_query.filter(getattr(Reference, key) == value)
 
-            references = base_query.all()
-            success = True
-
-        except Exception as e:
-            return False, str(e)
-
-        return success, [{
-            "id": str(ref.id),
-            "name": ref.name,
-            "type": ref.type,
-            "job_title": ref.job_title,
-            "organization": ref.organization,
-            "relationship": ref.relationship,
-            "email": ref.email
-        } for ref in references]
+        references = base_query.all()
+        return [to_dict(ref) for ref in references]

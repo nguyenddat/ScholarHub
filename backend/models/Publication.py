@@ -1,6 +1,7 @@
 from sqlalchemy import *
 from sqlalchemy.dialects.postgresql import UUID
 
+from helpers.DictConvert import to_dict
 from models.BaseClass import BareBaseModel, Base
 from schemas.Profile.Publication import *
 
@@ -87,21 +88,10 @@ class Publication(BareBaseModel):
 
     @staticmethod
     def get(db, user, params={}):
-        try:
-            query = db.query(Publication).filter(Publication.user_id == user.id)
-            if params:
-                for key, value in params.items():
-                    query = query.filter(getattr(Publication, key) == value)
+        query = db.query(Publication).filter(Publication.user_id == user.id)
+        if params:
+            for key, value in params.items():
+                query = query.filter(getattr(Publication, key) == value)
 
-            publications = query.all()
-            return True, [{
-                "id": str(pub.id),
-                "title": pub.title,
-                "type": pub.type,
-                "venue_name": pub.venue_name,
-                "publish_date": pub.publish_date,
-                "url": pub.url
-            } for pub in publications]
-
-        except Exception as e:
-            return False, str(e)
+        publications = query.all()
+        return [to_dict(pub) for pub in publications]

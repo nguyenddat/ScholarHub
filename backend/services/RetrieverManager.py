@@ -24,8 +24,9 @@ class RetrieverManager:
                 elapsed = time.time() - self.last_request_time
                 
                 if (self.wait_for_ingest) and ((elapsed > self.time_limit) or (self.request_count >= self.request_limit)):
-                    print("[Monitor] Re-ingesting vector store...")
+                    print("[Retrieve Monitor] Re-ingesting vector store...")
                     self.re_ingest()
+                    print(f"[Retrieve Monitor] Done re-ingest vector store!")
 
     def record_request(self):
         self.wait_for_ingest = True

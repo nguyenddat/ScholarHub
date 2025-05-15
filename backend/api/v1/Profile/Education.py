@@ -74,13 +74,14 @@ def get_education(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, education = Education.get(
-        db = db,
-        user = user,
-        params = {}
-    )
+    try:
+        education = Education.get(
+            db = db,
+            user = user,
+            params = {}
+        )
 
-    if success:
+        profile_manager.record_request(user.id)
         return JSONResponse(
             status_code = status.HTTP_200_OK,
             content = {
@@ -92,14 +93,14 @@ def get_education(
             }
         )
 
-    else:
-        profile_manager.record_request(user.id)
+    except Exception as err:
+        print(str(err))
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = {
                 "success": False,
                 "message": "Lấy profile education thất bại",
-                "payload": education
+                "payload": str(err)
             }
         )
 
@@ -109,19 +110,13 @@ def create_education(
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    success, education = Education.create(
-        db = db,
-        user = user,
-        education = payload
-    )
-
-    if not success:
-        return JSONResponse(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = education
+    try:
+        education = Education.create(
+            db = db,
+            user = user,
+            education = payload
         )
 
-    else:
         profile_manager.record_request(user.id)
         return JSONResponse(
             status_code = status.HTTP_200_OK,
@@ -133,3 +128,10 @@ def create_education(
                     },
                 }
             )
+
+    except Exception as err:
+        print(str(err))
+        return JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content = education
+        )

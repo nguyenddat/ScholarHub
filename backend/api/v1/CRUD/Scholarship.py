@@ -8,7 +8,6 @@ from database.init_db import get_db
 from models.Scholarship import Scholarship
 from schemas.CRUD.Scholarship import PostScholarshipRequest
 from helpers.CriteriaWeights import cal_weights
-from helpers.DataLoader import data_loader
 from services.Auth.auth import get_current_user
 from services.RetrieverManager import retriever_manager
 from services.CRUD.Scholarship import scholarship_to_description
@@ -22,17 +21,19 @@ def get_scholarship(
     db = Depends(get_db),
     user = Depends(get_current_user),
     suggest: bool = False,
+    id: Optional[str] = None,
     limit: int = 10,
     offset: int = 0
 ):
     try:
         if not suggest:
-            payload = Scholarship.get(
-                db = db, 
-                mode = "all",
-                limit = limit,
-                offset = offset
-            )
+            if id is not None:
+                payload = Scholarship.get(db = db, mode = "filter", params = {"id": id})
+                if len(payload) > 0:
+                    payload = payload[0]
+            
+            else:
+                payload = Scholarship.get(db, "all", limit = limit, offset = offset)
         else:
             payload = recommend_scholarship(db = db, user = user)
 
@@ -48,6 +49,7 @@ def get_scholarship(
         )
 
     except Exception as e:
+        print(str(e))
         return JSONResponse(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             content = str(e)
@@ -107,7 +109,7 @@ def post_scholarship(
     
     data["submitted_by"] = user.id
     data["posted_at"] = posted_at
-    data["scholarship_criteria"] = str(scholarship_criteria)
+    data["scholarship_criteria"] = scholarship_criteria
     scholarship, success = Scholarship.create(db = db, data = data)
     if not success:
         return JSONResponse(

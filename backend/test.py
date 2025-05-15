@@ -10,8 +10,8 @@ with open(os.path.join(settings.BASE_DIR, "artifacts", "WebScrape", "data1.json"
 
 login_url = "http://localhost:8000/api/v1/auth/login"
 login_payload = {
-    "username": "dinhdat201fb@gmail.com",
-    "password": "Dinhdat201fb@gma"
+    "username": "ript@gmail.com",
+    "password": "ript!@#123"
 }
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
 response = requests.post(login_url, data=login_payload, headers=headers)

@@ -2,6 +2,7 @@ from sqlalchemy import *
 from sqlalchemy.dialects.postgresql import UUID
 
 from helpers.Enums import *
+from helpers.DictConvert import to_dict
 from models.BaseClass import BareBaseModel
 from schemas.Profile.Education import EducationUpdateRequest, EducationCreateRequest, EducationDeleteRequest
 
@@ -71,60 +72,31 @@ class Education(BareBaseModel):
 
     @staticmethod
     def create(db, user, education: EducationCreateRequest):
-        try:
-            new_edu = Education(
-                user_id = user.id,
-                type = education.type,
-                current_study_year = education.current_study_year,
-                graduation_year = education.graduation_year,
-                institution = education.institution,
-                major = education.major,
-                degree_type = education.degree_type,
-                gpa = education.gpa
-            )
+        new_edu = Education(
+            user_id = user.id,
+            type = education.type,
+            current_study_year = education.current_study_year,
+            graduation_year = education.graduation_year,
+            institution = education.institution,
+            major = education.major,
+            degree_type = education.degree_type,
+            gpa = education.gpa
+        )
 
-            db.add(new_edu)
-            db.commit()
-            db.refresh(new_edu)
-            return True, {
-                "id": str(new_edu.id),
-                "type": new_edu.type,
-                "current_study_year": new_edu.current_study_year,
-                "graduation_year": new_edu.graduation_year,
-                "institution": new_edu.institution,
-                "major": new_edu.major,
-                "degree_type": new_edu.degree_type,
-                "gpa": float(new_edu.gpa) if new_edu.gpa is not None else None
-            }
-
-        except Exception as e:
-            return False, str(e)
+        db.add(new_edu)
+        db.commit()
+        db.refresh(new_edu)
+        return to_dict(new_edu)
 
     
     @staticmethod
     def get(db, user, params = {}):
-        success = False
         base_query = db.query(Education).filter(Education.user_id == user.id)
-        try:
-            if params != {}:
-                for key, value in params.items():
-                    base_query = base_query.filter(getattr(Education, key) == value)
-            
-            success = True
-            educations = base_query.all()
+        if params != {}:
+            for key, value in params.items():
+                base_query = base_query.filter(getattr(Education, key) == value)
         
-        except Exception as e:
-            success = False
-            education = str(e)
-        
-        return success, [{
-            "type": education.type,
-            "current_study_year": education.current_study_year,
-            "graduation_year": education.graduation_year,
-            "institution": education.institution,
-            "major": education.major,
-            "degree_type": education.degree_type,
-            "gpa": float(education.gpa) if education.gpa is not None else None
-        } for education in educations]
+        educations = base_query.all()        
+        return [to_dict(education) for education in educations]
 
 

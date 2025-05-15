@@ -9,6 +9,9 @@ def get_chat_completion(task: str, params={}):
     chain = prompt | llm | parser
 
     response = chain.invoke(params).dict()
+
+    with open("./test.txt", "w") as file:
+        file.write(prompt.format(**params))
     return response
 
 def get_prompt_template(task):
@@ -31,6 +34,10 @@ def get_prompt_template(task):
     elif task == "scholarship_select":
         parser = scholarshipSelect_parser
         prompt_template = scholarshipSelect_prompt
+    
+    elif task == "profile_matching":
+        parser = profileMatching_parser
+        prompt_template = profileMatching_prompt
 
     prompt_template = ChatPromptTemplate.from_messages(
         [

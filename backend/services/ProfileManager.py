@@ -22,15 +22,16 @@ class ProfileManager:
             time.sleep(3)
             with self.lock:
                 if self.wait_for_update:
-                    expired_users = [user_id for user_id, last_time in enumerate(self.profiles, self.last_request_time)
+                    expired_users = [user_id for user_id, last_time in zip(self.profiles, self.last_request_time)
                                      if time.time() - last_time >= self.time_limit]
 
                     for user_id in expired_users:
-                        print(f"[Monitor] Re-ingesting profile for user: {user_id}")
+                        print(f"[Profile Monitor] Re-ingesting profile for user: {user_id}")
                         try:
                             self.re_ingest(user_id)
+                            print(f"[Profile Monitor] Done re-ingesting profile for user: {user_id}]")
                         except Exception as e:
-                            print(f"[Monitor] Failed to re-ingest user {user_id}: {str(e)}")
+                            print(f"[Profile Monitor] Failed to re-ingest user {user_id}: {str(e)}")
 
     def record_request(self, user_id):
         self.wait_for_update = True

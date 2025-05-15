@@ -3,8 +3,10 @@ from datetime import datetime
 
 from sqlalchemy import *
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 
 from helpers.Enums import *
+from helpers.DictConvert import to_dict
 from models.BaseClass import BareBaseModel, Base
 
 class Scholarship(BareBaseModel):
@@ -32,7 +34,7 @@ class Scholarship(BareBaseModel):
     research_weights = Column(Float)
     certification_weights = Column(Float)
     achievement_weights = Column(Float)
-    scholarship_criteria = Column(Text)
+    scholarship_criteria = Column(JSONB)
 
     deadline = Column(Text)
     description = Column(Text)
@@ -73,34 +75,7 @@ class Scholarship(BareBaseModel):
             raise ValueError("Invalid mode")
 
         # Return formatted scholarship data, including criteria and weights
-        return [{
-            "id": str(scholarship.id),
-            "title": scholarship.title,
-            "provider": scholarship.provider,
-            "type": scholarship.type,
-            "funding_level": scholarship.funding_level,
-            "degree_level": scholarship.degree_level,
-            "region": scholarship.region,
-            "country": scholarship.country,
-            "major": scholarship.major,
-            "education_criteria": scholarship.education_criteria,
-            "personal_criteria": scholarship.personal_criteria,
-            "experience_criteria": scholarship.experience_criteria,
-            "research_criteria": scholarship.research_criteria,
-            "certification_criteria": scholarship.certification_criteria,
-            "achievement_criteria": scholarship.achievement_criteria,
-            "education_weights": scholarship.education_weights,
-            "personal_weights": scholarship.personal_weights,
-            "experience_weights": scholarship.experience_weights,
-            "research_weights": scholarship.research_weights,
-            "certification_weights": scholarship.certification_weights,
-            "achievement_weights": scholarship.achievement_weights,
-            "scholarship_criteria": scholarship.scholarship_criteria,
-            "deadline": scholarship.deadline,
-            "description": scholarship.description,
-            "original_url": scholarship.original_url,
-            "posted_at": str(scholarship.posted_at)
-        } for scholarship in scholarships]
+        return [to_dict(scholarship) for scholarship in scholarships]
 
     @staticmethod
     def create(db, data):

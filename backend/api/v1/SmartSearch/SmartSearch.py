@@ -1,29 +1,33 @@
-from fastapi import APIRouter, Depends, status, UploadFile, Form, File
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from database.init_db import get_db
-from schemas.SmartSearch.SmartSearch import SmartSearchRequest
 from ai.SmartSearch.SmartSearch import search
 
 router = APIRouter()
 
-@router.post("/smart-search")
+@router.get("/smart-search")
 def smart_search(
-    payload: SmartSearchRequest,
+    query: str,
     db = Depends(get_db)
 ):
     try:
         scholarships = search(
             db = db,
-            query = payload.query
+            query = query
         )
 
         return JSONResponse(
             status_code = status.HTTP_200_OK,
-            content = {
-                "scholarships": scholarships
-            }
+            content = {        
+                    "success": True, 
+                    "message": "Lấy danh sách học bổng thành công",
+                    "payload": {
+                        "scholarships": scholarships
+                    },
+                }
         )
+
     
     except Exception as e:
         return JSONResponse(

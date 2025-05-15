@@ -15,46 +15,39 @@ def create_personal(
     payload: PersonalCreateRequest,  # Đổi schema
     db=Depends(get_db),
     user=Depends(get_current_user)
-):
-    success, result = Profile.create(db=db, user=user, personal=payload)  # Đổi tên hàm và tham số
+):  
+    print(payload.model_dump())
+    try:
+        result = Profile.create(db=db, user=user, profile=payload)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "success": True,
+                "message": "Tạo personal thành công",
+                "payload": {
+                    "personal": result
+                }
+            }
+        )
 
-    if not success:
+    except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "success": False,
                 "message": "Tạo personal thất bại",
-                "payload": result
+                "payload": {
+                    "personal": str(e)
+                }
             }
         )
-
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={
-            "success": True,
-            "message": "Tạo personal thành công",
-            "payload": {
-                "personal": result
-            }
-        }
-    )
 
 @router.get("/personal")
 def get_personal(
     db=Depends(get_db),
     user=Depends(get_current_user)
 ):
-    success, result = Profile.get(db=db, user=user, params={})
-
-    if not success:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "success": False,
-                "message": "Lấy personal thất bại",
-                "payload": result
-            }
-        )
+    result = Profile.get(db=db, user=user)
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
@@ -73,18 +66,8 @@ def update_personal(
     db=Depends(get_db),
     user=Depends(get_current_user)
 ):
-    success, result = Profile.update(db=db, user=user, personal=payload)
-
-    if not success:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "success": False,
-                "message": "Cập nhật personal thất bại",
-                "payload": result
-            }
-        )
-
+    print(payload.contact_email)
+    result = Profile.update(db=db, user=user, profile=payload)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={

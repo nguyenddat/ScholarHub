@@ -1,3 +1,95 @@
+profileMatching_prompt = """
+You are an intelligent virtual assistant specialized in evaluating student profiles against scholarship descriptions. You will be given a scholarship description and a student profile. Your task is to assess the student's qualifications based on each scholarship criterion and provide suggestions or tips for improvement.
+
+Instructions:
+- Use the evaluation tables provided below to assign a profile score (criteria profile point) and a scholarship score (criteria scholarship point) for each criterion.
+- Consider:
+  - Firstly, if the scholarship description lacks a criterion, assign the scholarship point as 5 (i.e., assume the scholarship is open to all levels for that criterion).
+  - Secondly, if the student profile lacks a criterion, assign the profile point as 0.
+- The match percentage is calculated as: (criteria profile point / criteria scholarship point) * 100
+- Return only a valid JSON object with double quotes around all keys and values.
+- Always have evidences and proofs for your evaluations (from student's profile versus criteria of the scholarship description).
+
+Return format:
+```json
+{{
+  "ordinal_criteria": {{
+    "education": {{
+      "score": match percentage ((criteria profile point / criteria scholarship point) * 100),
+      "evidence": [evidence 1, evidence 2, ...]
+    }},
+    "experience": same as education,
+    "research": same as education,
+    "achievement": same as education,
+    "certification": same as education
+  }},
+  "binary_criteria": {{
+    "gender": {{
+      "score": 0 or 1,
+      "evidence": [evidence 1, evidence 2]
+    }},
+    "nationality": same as gender,
+    "age": same as gender,
+    ...
+  }}
+}}
+```
+
+Ordinal Criteria:
+- Education:
+| Score | Description                                                                                                 |
+| ----- | ----------------------------------------------------------------------------------------------------------- |
+| **5** | GPA ≥ 3.8 or top 5% of class; multiple academic awards or honors (e.g., summa cum laude, university medal)  |
+| **4** | GPA 3.5–3.79 or top 10–15%; some academic recognition or honors                                             |
+| **3** | GPA 3.2–3.49 or top 25%; solid but not exceptional academic record                                          |
+| **2** | GPA 2.8–3.19; academic performance is average                                                               |
+| **1** | GPA < 2.8; weak academic performance or no distinction                                                      |
+
+- Research:
+| Score | Description                                                                                     |
+| ----- | ----------------------------------------------------------------------------------------------- |
+| **5** | Multiple peer-reviewed publications or major research projects; led research with clear impact  |
+| **4** | At least one publication or conference paper; strong assistant roles in research projects       |
+| **3** | Some research experience (e.g., thesis, internships, RA role), but no publications              |
+| **2** | Minimal or unrelated research exposure                                                          |
+| **1** | No research experience                                                                          |
+
+- Experience:
+| Score | Description                                                                                                       |
+| ----- | ----------------------------------------------------------------------------------------------------------------- |
+| **5** | 3+ years of relevant full-time experience; led significant projects or teams; demonstrated measurable impact      |
+| **4** | 1–3 years of relevant experience; contributed meaningfully to projects or processes; some leadership or recognition|
+| **3** | Internship(s) or <1 year of relevant experience; assisted in projects with moderate responsibility                |
+| **2** | Limited experience; unrelated part-time jobs or minor volunteer work                                              |
+| **1** | No relevant work experience or only casual/short-term roles                                                       |
+
+- Achievements:
+| Score | Description                                                                                                      |
+| ----- | ---------------------------------------------------------------------------------------------------------------- |
+| **5** | National or international recognition (e.g., winning top prizes in prestigious competitions, global scholarships)|
+| **4** | University-level or industry-level awards (e.g., top performer awards, dean’s list for multiple years)           |
+| **3** | Faculty/department-level recognition or participation in competitive events with notable results                 |
+| **2** | Participation in competitions or events with limited recognition; small-scale achievements                       |
+| **1** | No awards or notable achievements                                                                                |
+
+- Certifications:
+| Score | Description                                                                                                     |
+| ----- | --------------------------------------------------------------------------------------------------------------- |
+| **5** | Multiple highly recognized certifications relevant to the field (e.g., AWS Certified Solutions Architect, PMP)  |
+| **4** | One major industry-recognized certification or several well-regarded ones in relevant areas                    |
+| **3** | One or two moderately recognized certifications or completion of relevant online courses with certification     |
+| **2** | Basic certifications with limited industry value or relevance                                                   |
+| **1** | No certifications                                                                                               |
+
+Student profile:
+{profile}
+
+Scholarship:
+{scholarship}
+
+{question}
+"""
+
 scholarshipSelect_prompt = """
 You are an intelligent virtual assistant specialized in selecting scholarships that maybe match the user's requirements. Your task is to choose all relevant scholarship IDs from the provided list of scholarships based on the user's search query.
 
@@ -53,6 +145,10 @@ scholarshipExtract_prompt = """
 You are an intelligent virtual assistant specialized in comparing a scholarship description against certain criteria. You will be provided with a set of criteria, and your task is to extract requirements from the scholarship description based on these criteria. If the description meets a criterion, the relevant score will be 1; otherwise, it will be 0. Finally, you will return the evaluation in the JSON format defined below:
 
 Return Format:
+- All ordinal_criteria must be return as a numpy array of 0 and 1 in shape of (5,).
+- Follow strictly this json rule and always return as a valid python dictionary
+- All property name are enclosed in double quotes and do not forget any delimeters.
+
 ```json
 {{
   "ordinal_criteria": {{
@@ -66,7 +162,7 @@ Return Format:
     "certification": same as education,
   }},
   "binary_criteria": {{
-    "gender": Gender of candidate (lower case + snake case)
+    "gender": Gender of candidate (lower case + snake case),
     "nationality": Nationality of candidate (lower case + snake case)
   }}
 }}
@@ -128,6 +224,7 @@ resumeExtract_prompt = """
 You are an intelligent virtual assistant specialized in comparing a CV against job requirements. You will be provided with a set of criteria, and your task is to evaluate the information from the CV against these criteria. If the candidate's CV meets a criterion, it will receive the corresponding score for that criterion. Furthermore, if a higher-level criterion is met (e.g., score 5), all lower-level criteria (e.g., scores 4, 3, 2, 1) are automatically considered met as well.
 
 Return Format:
+- All ordinal_criteria must be return as a numpy array of 0 and 1 in shape of (5,).
 ```json
     criteria: {{
       "education": {{
