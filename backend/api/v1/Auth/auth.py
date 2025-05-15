@@ -12,6 +12,7 @@ from models.Profile import Profile
 from database.init_db import get_db
 from schemas.Auth.auth import UserCreate, UserResponse, Token, RefreshToken
 from schemas.Profile.Personal import *
+from schemas.Profile.Personal import PersonalCreateRequest
 from services.Auth.auth import get_current_user
 from services.Auth.utils import create_access_token, create_refresh_token
 
@@ -40,6 +41,7 @@ async def register(
             )
 
         else:
+            profile = Profile.create(db = db, user = user, profile = PersonalCreateRequest())
             return JSONResponse(
                 status_code=status.HTTP_201_CREATED,
                 content={

@@ -1,3 +1,5 @@
+import decimal
+
 from schemas.CRUD.Scholarship import PostScholarshipRequest
 
 def to_dict(model):
@@ -5,6 +7,9 @@ def to_dict(model):
     for key, value in vars(model).items():
         if value is None or key.startswith("_") or key == "is_public":
             continue
+
+        if isinstance(value, decimal.Decimal):
+            value = float(value)
 
         if (not isinstance(value, bool)) and \
             (not isinstance(value, int)) and \

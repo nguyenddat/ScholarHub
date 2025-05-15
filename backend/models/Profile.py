@@ -162,6 +162,11 @@ class Profile(Base):
     @staticmethod
     def update_criteria(db, user_id):
         user = db.query(User).filter(User.id == user_id).first()
+        profile_record = db.query(Profile).filter(Profile.user_id == user.id).first()
+        if not profile_record:
+            print(f"Không tìm thấy bản ghi cho profile của người dùng: {user_id}")
+            return False
+
         educations = Education.Education.get(db, user)
         experiences = Experience.Experience.get(db, user)
         publications = Publication.Publication.get(db, user)
@@ -211,11 +216,10 @@ class Profile(Base):
             }
         )
 
-        profile_record = db.query(Profile).filter(Profile.user_id == user.id).first()
         profile_record.criteria = criteria_result["criteria"]
         db.commit()
         db.refresh(profile_record)
-        return True, profile_record
+        return True
 
 
 

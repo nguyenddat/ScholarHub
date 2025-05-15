@@ -6,7 +6,7 @@ from database.scholarship_service import (
     get_scholarship_by_id,
     get_scholarship_field
 )
-from core.rag.document_retriever import retrieve_documents
+from ai.core.rag.document_retriever import retrieve_documents
 
 class ScholarshipSearchInput(BaseModel):
     query: str = Field(..., description="The search query for scholarships (can include keywords, country, degree level, etc.)")

@@ -111,6 +111,5 @@ class Experience(BareBaseModel):
             for key, value in params.items():
                 base_query = base_query.filter(getattr(Experience, key) == value)
 
-            experiences = base_query.all()
-            
+        experiences = base_query.all()
         return [to_dict(exp) for exp in experiences]

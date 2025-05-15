@@ -17,12 +17,10 @@ from api.v1.Profile import (
 )
 
 from api.v1.Auth.auth import router as Auth_Router
-
 from api.v1.CRUD.Scholarship import router as CRUD_Scholarship_Router
-
 from api.v1.ProfileMatching.ProfileMatching import router as ProfileMatching_Router
-
 from api.v1.SmartSearch.SmartSearch import router as SmartSearch_Router
+from api.v1.chat.routes import router as Chatbot_Router
 
 
 def get_application() -> FastAPI:
@@ -39,6 +37,7 @@ def get_application() -> FastAPI:
     application.include_router(CRUD_Scholarship_Router, prefix = "/api/v1", tags = ["CRUD"])
     application.include_router(ProfileMatching_Router, prefix = "/api/v1/ai", tags = ["Profile Matching"])
     application.include_router(SmartSearch_Router, prefix = "/api/v1/ai", tags = ["Smart Search"])
+    application.include_router(Chatbot_Router, prefix = "/api/v1/ai", tags = ["Chatbot"])
 
     # Profile section
     application.include_router(education_router.router, prefix = "/api/v1/user", tags = ["User - Education"])
