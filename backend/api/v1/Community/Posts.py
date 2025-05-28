@@ -15,6 +15,7 @@ from models.Profile import Profile
 from schemas.Community.Posts import *
 from services.Auth.auth import get_current_user
 from models.CommunityCommentReaction import CommunityCommentReaction
+from models.SavedPost import SavedPost
 
 router = APIRouter()
 
@@ -60,6 +61,12 @@ def get_posts(
             user_reposted = db.query(CommunityPost).filter(
                 CommunityPost.repost_of == post.id,
                 CommunityPost.author_id == user.id
+            ).first()
+            
+            # Check if user saved this post
+            user_saved = db.query(SavedPost).filter(
+                SavedPost.post_id == post.id,
+                SavedPost.user_id == user.id
             ).first()
             
             # Handle image URL
@@ -123,7 +130,8 @@ def get_posts(
                     "reposts": reposts_count
                 },
                 "userReacted": user_reaction is not None,
-                "userReposted": user_reposted is not None
+                "userReposted": user_reposted is not None,
+                "userSaved": user_saved is not None
             })
         
         return JSONResponse(
@@ -524,6 +532,230 @@ def create_repost(
             content={
                 "success": False,
                 "message": f"Lỗi khi repost: {str(e)}"
+            }
+        )
+
+@router.post("/posts/{post_id}/save")
+def toggle_save_post(
+    post_id: str,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """Toggle save post (save/unsave)"""
+    try:
+        # Check if post exists
+        post = db.query(CommunityPost).filter(CommunityPost.id == post_id).first()
+        if not post:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "success": False,
+                    "message": "Post không tồn tại"
+                }
+            )
+        
+        # Check existing save
+        existing_save = db.query(SavedPost).filter(
+            SavedPost.post_id == post_id,
+            SavedPost.user_id == user.id
+        ).first()
+        
+        if existing_save:
+            # Remove save (unsave)
+            db.delete(existing_save)
+            action = "unsaved"
+        else:
+            # Add save
+            new_save = SavedPost(
+                post_id=post_id,
+                user_id=user.id
+            )
+            db.add(new_save)
+            action = "saved"
+        
+        db.commit()
+        
+        # Get total saved posts count
+        saved_count = db.query(SavedPost).filter(SavedPost.user_id == user.id).count()
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "success": True,
+                "message": f"Đã {action} post",
+                "payload": {
+                    "action": action,
+                    "saved_count": saved_count
+                }
+            }
+        )
+    
+    except Exception as e:
+        db.rollback()
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "message": f"Lỗi khi save post: {str(e)}"
+            }
+        )
+
+@router.get("/saved-posts")
+def get_saved_posts(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """Lấy danh sách saved posts của user"""
+    try:
+        offset = (page - 1) * limit
+        
+        # Query saved posts của user
+        saved_posts_query = db.query(SavedPost).join(CommunityPost).join(User).filter(
+            SavedPost.user_id == user.id
+        ).order_by(SavedPost.saved_at.desc())
+        
+        total = saved_posts_query.count()
+        saved_posts = saved_posts_query.offset(offset).limit(limit).all()
+        
+        posts_data = []
+        base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+        
+        for saved_post in saved_posts:
+            post = saved_post.post
+            
+            # Count reactions, comments, reposts (giống như GET posts)
+            reactions_count = db.query(CommunityReaction).filter(
+                CommunityReaction.post_id == post.id,
+                CommunityReaction.reaction_type == "like"
+            ).count()
+            
+            comments_count = db.query(CommunityComment).filter(CommunityComment.post_id == post.id).count()
+            reposts_count = db.query(CommunityPost).filter(CommunityPost.repost_of == post.id).count()
+            
+            # Check user reactions
+            user_reaction = db.query(CommunityReaction).filter(
+                CommunityReaction.post_id == post.id,
+                CommunityReaction.user_id == user.id,
+                CommunityReaction.reaction_type == "like"
+            ).first()
+            
+            user_reposted = db.query(CommunityPost).filter(
+                CommunityPost.repost_of == post.id,
+                CommunityPost.author_id == user.id
+            ).first()
+            
+            # Check if user saved this post
+            user_saved = db.query(SavedPost).filter(
+                SavedPost.post_id == post.id,
+                SavedPost.user_id == user.id
+            ).first()
+            
+            # Handle URLs (giống GET posts)
+            image_url = None
+            if post.image:
+                image_url = f"{base_url}{post.image}" if not post.image.startswith('http') else post.image
+            
+            video_url = None 
+            if post.video:
+                video_url = f"{base_url}{post.video}" if not post.video.startswith('http') else post.video
+            
+            files_urls = []
+            if post.files:
+                for file_url in post.files:
+                    files_urls.append(f"{base_url}{file_url}" if not file_url.startswith('http') else file_url)
+            
+            # Get author name
+            author_name = post.author.email.split('@')[0]
+            author_profile = db.query(Profile).filter(Profile.user_id == post.author.id).first()
+            
+            if author_profile:
+                full_name_parts = [
+                    author_profile.first_name,
+                    author_profile.middle_name,
+                    author_profile.last_name
+                ]
+                full_name = " ".join([part for part in full_name_parts if part and part.strip()])
+                if full_name.strip():
+                    author_name = full_name
+            
+            posts_data.append({
+                "id": str(post.id),
+                "content": post.content,
+                "image": image_url,
+                "video": video_url,
+                "files": files_urls,
+                "post_type": post.post_type,
+                "tags": post.tags or [],
+                "timestamp": _format_timestamp(post.created_at),
+                "savedAt": _format_timestamp(saved_post.saved_at),  # Thêm thời gian save
+                "author": {
+                    "name": author_name,
+                    "role": getattr(post.author, 'role', 'Student'),
+                    "avatar": None
+                },
+                "reactions": {
+                    "likes": reactions_count,
+                    "comments": comments_count,
+                    "reposts": reposts_count
+                },
+                "userReacted": user_reaction is not None,
+                "userReposted": user_reposted is not None,
+                "userSaved": user_saved is not None
+            })
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "success": True,
+                "message": "Lấy saved posts thành công",
+                "payload": {
+                    "posts": posts_data,
+                    "pagination": {
+                        "page": page,
+                        "limit": limit,
+                        "total": total,
+                        "total_pages": (total + limit - 1) // limit
+                    }
+                }
+            }
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "message": f"Lỗi khi lấy saved posts: {str(e)}"
+            }
+        )
+
+@router.get("/saved-posts/count")
+def get_saved_posts_count(
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """Lấy số lượng saved posts của user"""
+    try:
+        count = db.query(SavedPost).filter(SavedPost.user_id == user.id).count()
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "success": True,
+                "payload": {
+                    "count": count
+                }
+            }
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "message": f"Lỗi khi đếm saved posts: {str(e)}"
             }
         )
 
