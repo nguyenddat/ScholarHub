@@ -23,6 +23,8 @@ from api.v1.CRUD.Scholarship import router as CRUD_Scholarship_Router
 from api.v1.ProfileMatching.ProfileMatching import router as ProfileMatching_Router
 from api.v1.SmartSearch.SmartSearch import router as SmartSearch_Router
 from api.v1.chat.routes import router as Chatbot_Router
+from api.v1.Community import Posts as community_posts_router
+from api.v1.Community import Connections as community_connections_router
 
 
 def get_application() -> FastAPI:
@@ -50,6 +52,10 @@ def get_application() -> FastAPI:
     application.include_router(personal_router.router, prefix = "/api/v1/user", tags = ["User - Personal"])
     application.include_router(profile_router.router, prefix = "/api/v1/user", tags = ["User - Profile"])
     application.include_router(certification_router.router, prefix = "/api/v1/user", tags = ["User - Certification"])
+
+    # Community section
+    application.include_router(community_posts_router.router, prefix="/api/v1/community", tags=["Community - Posts"])
+    application.include_router(community_connections_router.router, prefix="/api/v1/community", tags=["Community - Connections"])
 
     return application
 
