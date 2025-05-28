@@ -5,12 +5,15 @@ from pydantic import BaseModel
 class PostCreateRequest(BaseModel):
     content: str
     image: Optional[str] = None
+    video: Optional[str] = None
+    files: Optional[List[str]] = []
     post_type: Optional[str] = "general"
     tags: Optional[List[str]] = []
 
 class PostUpdateRequest(BaseModel):
     content: Optional[str] = None
     image: Optional[str] = None
+    video: Optional[str] = None
     post_type: Optional[str] = None
     tags: Optional[List[str]] = None
 
@@ -24,6 +27,7 @@ class PostResponse(BaseModel):
     id: str
     content: str
     image: Optional[str]
+    video: Optional[str]
     post_type: str
     tags: List[str]
     created_at: datetime

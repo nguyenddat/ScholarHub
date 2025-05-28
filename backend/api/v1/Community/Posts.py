@@ -1,5 +1,6 @@
 from typing import Optional, List
 from datetime import datetime
+import os
 
 from fastapi import APIRouter, Depends, status, Query
 from fastapi.responses import JSONResponse
@@ -34,6 +35,8 @@ def get_posts(
         posts = posts_query.offset(offset).limit(limit).all()
         
         posts_data = []
+        base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+        
         for post in posts:
             # Count reactions
             reactions_count = db.query(CommunityReaction).filter(CommunityReaction.post_id == post.id).count()
@@ -45,6 +48,31 @@ def get_posts(
                 CommunityReaction.user_id == user.id
             ).first()
             
+            # Handle image URL
+            image_url = None
+            if post.image:
+                if post.image.startswith('http'):
+                    image_url = post.image
+                else:
+                    image_url = f"{base_url}{post.image}"
+            
+            # Handle video URL
+            video_url = None
+            if post.video:
+                if post.video.startswith('http'):
+                    video_url = post.video
+                else:
+                    video_url = f"{base_url}{post.video}"
+            
+            # Handle files URLs
+            files_urls = []
+            if post.files:
+                for file_url in post.files:
+                    if file_url.startswith('http'):
+                        files_urls.append(file_url)
+                    else:
+                        files_urls.append(f"{base_url}{file_url}")
+            
             # Lấy tên hiển thị từ profile hoặc email
             author_name = post.author.email.split('@')[0]  # default
             author_profile = db.query(Profile).filter(Profile.user_id == post.author.id).first()
@@ -53,7 +81,7 @@ def get_posts(
                 # Tạo full name từ profile
                 full_name_parts = [
                     author_profile.first_name,
-                    author_profile.middle_name, 
+                    author_profile.middle_name,
                     author_profile.last_name
                 ]
                 full_name = " ".join([part for part in full_name_parts if part and part.strip()])
@@ -64,7 +92,9 @@ def get_posts(
             posts_data.append({
                 "id": str(post.id),
                 "content": post.content,
-                "image": post.image,
+                "image": image_url,
+                "video": video_url,
+                "files": files_urls,
                 "post_type": post.post_type,
                 "tags": post.tags or [],
                 "timestamp": _format_timestamp(post.created_at),
@@ -76,7 +106,7 @@ def get_posts(
                 "reactions": {
                     "likes": reactions_count,
                     "comments": comments_count,
-                    "reposts": 0  # Tạm thời chưa implement
+                    "reposts": 0
                 },
                 "userReacted": user_reaction is not None
             })
@@ -99,6 +129,7 @@ def get_posts(
         )
     
     except Exception as e:
+        print(f"Get posts error: {str(e)}")  # Debug log
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
@@ -119,6 +150,8 @@ def create_post(
             author_id=user.id,
             content=payload.content,
             image=payload.image,
+            video=payload.video,
+            files=payload.files,
             post_type=payload.post_type,
             tags=payload.tags
         )
@@ -137,6 +170,8 @@ def create_post(
                         "id": str(new_post.id),
                         "content": new_post.content,
                         "image": new_post.image,
+                        "video": new_post.video,
+                        "files": new_post.files,
                         "post_type": new_post.post_type,
                         "tags": new_post.tags
                     }

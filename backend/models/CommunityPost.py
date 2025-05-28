@@ -13,6 +13,8 @@ class CommunityPost(BareBaseModel):
     author_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     content = Column(Text, nullable=False)
     image = Column(Text, nullable=True)
+    video = Column(Text, nullable=True)
+    files = Column(JSON, default=list)
     post_type = Column(String(50), default="general")  # experience, announcement, event, question, etc.
     tags = Column(JSON, default=list)  # ["Erasmus+", "StudyAbroad", "ScholarshipTips"]
     created_at = Column(DateTime, default=datetime.utcnow)
