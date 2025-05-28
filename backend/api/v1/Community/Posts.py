@@ -10,8 +10,10 @@ from models.CommunityPost import CommunityPost
 from models.CommunityReaction import CommunityReaction
 from models.CommunityComment import CommunityComment
 from models.User import User
+from models.Profile import Profile
 from schemas.Community.Posts import *
 from services.Auth.auth import get_current_user
+from models.CommunityCommentReaction import CommunityCommentReaction
 
 router = APIRouter()
 
@@ -26,7 +28,7 @@ def get_posts(
     try:
         offset = (page - 1) * limit
         
-        # Query posts với author info
+        # Query posts với author info và profile
         posts_query = db.query(CommunityPost).join(User).order_by(CommunityPost.created_at.desc())
         total = posts_query.count()
         posts = posts_query.offset(offset).limit(limit).all()
@@ -43,6 +45,22 @@ def get_posts(
                 CommunityReaction.user_id == user.id
             ).first()
             
+            # Lấy tên hiển thị từ profile hoặc email
+            author_name = post.author.email.split('@')[0]  # default
+            author_profile = db.query(Profile).filter(Profile.user_id == post.author.id).first()
+            
+            if author_profile:
+                # Tạo full name từ profile
+                full_name_parts = [
+                    author_profile.first_name,
+                    author_profile.middle_name, 
+                    author_profile.last_name
+                ]
+                full_name = " ".join([part for part in full_name_parts if part and part.strip()])
+                
+                if full_name.strip():  # Nếu có full name
+                    author_name = full_name
+            
             posts_data.append({
                 "id": str(post.id),
                 "content": post.content,
@@ -51,7 +69,7 @@ def get_posts(
                 "tags": post.tags or [],
                 "timestamp": _format_timestamp(post.created_at),
                 "author": {
-                    "name": post.author.email.split('@')[0],  # Tạm dùng email prefix
+                    "name": author_name,
                     "role": getattr(post.author, 'role', 'Student'),
                     "avatar": getattr(post.author, 'avatar', '/placeholder.svg?height=40&width=40')
                 },
@@ -200,6 +218,71 @@ def toggle_reaction(
             }
         )
 
+@router.post("/posts/{post_id}/comments/{comment_id}/reaction")
+def toggle_comment_reaction(
+    post_id: str,
+    comment_id: str,
+    payload: ReactionRequest,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """Toggle comment reaction (like/unlike)"""
+    try:
+        # Check if comment exists
+        comment = db.query(CommunityComment).filter(CommunityComment.id == comment_id).first()
+        if not comment:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "success": False,
+                    "message": "Comment không tồn tại"
+                }
+            )
+        
+        # Check existing reaction
+        existing_reaction = db.query(CommunityCommentReaction).filter(
+            CommunityCommentReaction.comment_id == comment_id,
+            CommunityCommentReaction.user_id == user.id
+        ).first()
+        
+        if existing_reaction:
+            # Remove reaction (unlike)
+            db.delete(existing_reaction)
+            action = "unreacted"
+        else:
+            # Add reaction (like)
+            new_reaction = CommunityCommentReaction(
+                comment_id=comment_id,
+                user_id=user.id,
+                reaction_type=payload.reaction_type
+            )
+            db.add(new_reaction)
+            action = "reacted"
+        
+        db.commit()
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "success": True,
+                "message": f"Đã {action} comment",
+                "payload": {
+                    "action": action,
+                    "reaction_type": payload.reaction_type
+                }
+            }
+        )
+    
+    except Exception as e:
+        db.rollback()
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "message": f"Lỗi khi reaction comment: {str(e)}"
+            }
+        )
+
 @router.get("/posts/{post_id}/comments")
 def get_comments(
     post_id: str,
@@ -214,16 +297,42 @@ def get_comments(
         
         comments_data = []
         for comment in comments:
+            # Count likes cho comment
+            likes_count = db.query(CommunityCommentReaction).filter(CommunityCommentReaction.comment_id == comment.id).count()
+            
+            # Check if user liked this comment
+            user_liked = db.query(CommunityCommentReaction).filter(
+                CommunityCommentReaction.comment_id == comment.id,
+                CommunityCommentReaction.user_id == user.id
+            ).first() is not None
+            
+            # Lấy tên hiển thị từ profile hoặc email
+            author_name = comment.author.email.split('@')[0]  # default
+            author_profile = db.query(Profile).filter(Profile.user_id == comment.author.id).first()
+            
+            if author_profile:
+                # Tạo full name từ profile
+                full_name_parts = [
+                    author_profile.first_name,
+                    author_profile.middle_name,
+                    author_profile.last_name
+                ]
+                full_name = " ".join([part for part in full_name_parts if part and part.strip()])
+                
+                if full_name.strip():  # Nếu có full name
+                    author_name = full_name
+            
             comments_data.append({
                 "id": str(comment.id),
                 "content": comment.content,
                 "timestamp": _format_timestamp(comment.created_at),
                 "author": {
-                    "name": comment.author.email.split('@')[0],
+                    "name": author_name,
                     "role": getattr(comment.author, 'role', 'Student'),
                     "avatar": getattr(comment.author, 'avatar', '/placeholder.svg?height=40&width=40')
                 },
-                "likes": 0  # Tạm thời chưa implement comment likes
+                "likes": likes_count,
+                "userLiked": user_liked
             })
         
         return JSONResponse(

@@ -15,4 +15,5 @@ class CommunityComment(BareBaseModel):
 
     # Relationships
     post = relationship("CommunityPost", back_populates="comments")
-    author = relationship("User") 
+    author = relationship("User")
+    reactions = relationship("CommunityCommentReaction", back_populates="comment", cascade="all, delete-orphan") 

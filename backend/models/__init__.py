@@ -18,3 +18,4 @@ from .Reference import Reference
 from .ScholarshipApplication import ScholarshipApplication
 from .UserPoints import UserPoints
 from .UserScholarshipBookmark import UserScholarshipBookmark
+from .CommunityCommentReaction import CommunityCommentReaction
