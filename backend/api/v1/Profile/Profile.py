@@ -92,7 +92,7 @@ def get_current_user_profile(
         # Format response theo IUserProfile interface
         profile_data = {
             "first_name": personal.get("first_name"),
-            "middle_name": personal.get("middle_name"), 
+            "middle_name": personal.get("middle_name"),
             "last_name": personal.get("last_name"),
             "gender": personal.get("gender"),
             "job_title": personal.get("job_title"),
@@ -106,7 +106,24 @@ def get_current_user_profile(
             "achievements": achievement or [],
             "certifications": certification or [],
             "publications": publication or [],
-            "references": reference or []
+            "references": reference or [],
+            # Thêm các field cho frontend
+            "fullName": f"{personal.get('first_name', '')} {personal.get('last_name', '')}".strip() or user.email.split('@')[0],
+            "id": str(user.id),
+            "avatar": user.avatar if user.avatar else None,  # Lấy từ User model
+            "coverImage": None,
+            "bio": personal.get("self_introduction"),
+            "location": personal.get("country_of_residence"),
+            "university": "",  # Có thể lấy từ education đầu tiên
+            "major": "",
+            "yearOfStudy": None,
+            "gpa": None,
+            "skills": [],
+            "interests": [],
+            "socialLinks": {},
+            "isPublic": True,
+            "createdAt": user.created_at.isoformat() if hasattr(user, 'created_at') else None,
+            "updatedAt": user.updated_at.isoformat() if hasattr(user, 'updated_at') else None
         }
 
         return JSONResponse(

@@ -17,6 +17,7 @@ class CommunityPost(BareBaseModel):
     files = Column(JSON, default=list)
     post_type = Column(String(50), default="general")  # experience, announcement, event, question, etc.
     tags = Column(JSON, default=list)  # ["Erasmus+", "StudyAbroad", "ScholarshipTips"]
+    repost_of = Column(UUID(as_uuid=True), ForeignKey("community_posts.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

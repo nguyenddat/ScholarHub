@@ -38,14 +38,28 @@ def get_posts(
         base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
         
         for post in posts:
-            # Count reactions
-            reactions_count = db.query(CommunityReaction).filter(CommunityReaction.post_id == post.id).count()
+            # Count reactions, comments, AND reposts
+            reactions_count = db.query(CommunityReaction).filter(
+                CommunityReaction.post_id == post.id,
+                CommunityReaction.reaction_type == "like"
+            ).count()
+            
             comments_count = db.query(CommunityComment).filter(CommunityComment.post_id == post.id).count()
+            
+            # Count reposts: đếm số post có repost_of = post.id
+            reposts_count = db.query(CommunityPost).filter(CommunityPost.repost_of == post.id).count()
             
             # Check if user reacted
             user_reaction = db.query(CommunityReaction).filter(
                 CommunityReaction.post_id == post.id,
-                CommunityReaction.user_id == user.id
+                CommunityReaction.user_id == user.id,
+                CommunityReaction.reaction_type == "like"
+            ).first()
+            
+            # Check if user đã repost (có post nào của user có repost_of = post.id không)
+            user_reposted = db.query(CommunityPost).filter(
+                CommunityPost.repost_of == post.id,
+                CommunityPost.author_id == user.id
             ).first()
             
             # Handle image URL
@@ -101,14 +115,15 @@ def get_posts(
                 "author": {
                     "name": author_name,
                     "role": getattr(post.author, 'role', 'Student'),
-                    "avatar": getattr(post.author, 'avatar', '/placeholder.svg?height=40&width=40')
+                    "avatar": None  # Fix avatar như đã làm trước đó
                 },
                 "reactions": {
                     "likes": reactions_count,
                     "comments": comments_count,
-                    "reposts": 0
+                    "reposts": reposts_count
                 },
-                "userReacted": user_reaction is not None
+                "userReacted": user_reaction is not None,
+                "userReposted": user_reposted is not None
             })
         
         return JSONResponse(
@@ -442,6 +457,73 @@ def create_comment(
             content={
                 "success": False,
                 "message": f"Lỗi khi tạo comment: {str(e)}"
+            }
+        )
+
+@router.post("/posts/{post_id}/repost")
+def create_repost(
+    post_id: str,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """Tạo repost - tạo post mới từ post gốc"""
+    try:
+        # Check if post exists
+        original_post = db.query(CommunityPost).filter(CommunityPost.id == post_id).first()
+        if not original_post:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "success": False,
+                    "message": "Post không tồn tại"
+                }
+            )
+        
+        # Check user không phải author của post gốc
+        if original_post.author_id == user.id:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={
+                    "success": False,
+                    "message": "Không thể repost bài viết của chính mình"
+                }
+            )
+        
+        # Tạo post mới (repost)
+        repost = CommunityPost(
+            author_id=user.id,
+            content=original_post.content,  # Copy content từ post gốc
+            image=original_post.image,      # Copy image
+            video=original_post.video,      # Copy video
+            files=original_post.files,      # Copy files
+            post_type=original_post.post_type,
+            tags=original_post.tags,
+            repost_of=original_post.id      # Reference đến post gốc
+        )
+        
+        db.add(repost)
+        db.commit()
+        db.refresh(repost)
+        
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={
+                "success": True,
+                "message": "Đã repost thành công",
+                "payload": {
+                    "repost_id": str(repost.id),
+                    "original_post_id": str(original_post.id)
+                }
+            }
+        )
+    
+    except Exception as e:
+        db.rollback()
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "message": f"Lỗi khi repost: {str(e)}"
             }
         )
 
