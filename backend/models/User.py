@@ -21,6 +21,7 @@ class User(BareBaseModel):
 
     profile = relationship("Profile", back_populates="user", uselist=False)
     scholarship = relationship("Scholarship", back_populates="user")
+    community_posts = relationship("CommunityPost", back_populates="author")
 
     @staticmethod
     def create_user(db, user: UserCreate):

@@ -176,3 +176,12 @@ cython_debug/
 /database/
 /graph_database/
 /chatbot/
+/uploads/
+# Bỏ qua tất cả các file .jpg
+*.jpg
+
+# Bỏ qua tất cả các file .mp4
+*.mp4
+
+# Bỏ qua tất cả các file .docx
+*.docx
