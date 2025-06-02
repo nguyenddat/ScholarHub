@@ -37,22 +37,6 @@ services:
     networks:
       - fast_api
   
-  # frontend:
-  #   container_name: scholarhub_frontend
-  #   build:
-  #     context: ./frontend
-  #   env_file:
-  #     - ./frontend/.env
-  #   ports:
-  #     - "8002:3000"
-  #   depends_on:
-  #     backend:
-  #       condition: service_started
-  #   restart: always
-  #   command: ["pnpm", "run", "dev", "--host", "--port", "3000"]
-  #   networks:
-  #     - fast_api
-
 networks:
   fast_api:
     driver: bridge
