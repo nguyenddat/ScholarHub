@@ -5,6 +5,8 @@ from .Achievement import Achievement
 from .ApplicationDocument import ApplicationDocument
 from .Certification import Certification
 from .CommunityPost import CommunityPost
+from .CommunityReaction import CommunityReaction
+from .CommunityComment import CommunityComment
 from .Connection import Connection
 from .Document import Document
 from .Education import Education
@@ -16,3 +18,4 @@ from .Reference import Reference
 from .ScholarshipApplication import ScholarshipApplication
 from .UserPoints import UserPoints
 from .UserScholarshipBookmark import UserScholarshipBookmark
+from .CommunityCommentReaction import CommunityCommentReaction
