@@ -2,10 +2,11 @@ import json
 from typing import AsyncGenerator, Dict, Optional, List, Any
 
 from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.responses import StreamingResponse, JSONResponse
 
-from database.chat_history_service import get_next_thread_id, get_user_threads, get_chat_history
+from database.chat_history_service import get_next_thread_id, get_user_threads, get_chat_history, delete_chat_history
+from services.Auth.auth import get_current_user
 from ai.core.service.ai_service import get_answer, get_answer_stream
 
 router = APIRouter()
@@ -52,6 +53,27 @@ async def list_user_threads(request: ThreadHistoryRequest):
             detail=f"Internal server error: {str(e)}"
         )
 
+@router.delete("/threads")
+def delete_thread(
+    thread_id: str,
+    user = Depends(get_current_user) 
+):
+    success = delete_chat_history(
+        user_id = str(user.id),
+        thread_id = thread_id
+    )
+    
+    if success:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Thanh cong",
+                "payload": None
+            }
+        )
+
+
 @router.get("/history/{user_id}/{thread_id}")
 async def get_thread_history(
     user_id: str, 
@@ -93,7 +115,7 @@ async def new_thread(request: ThreadRequest):
             content={
                 "success": True,
                 "message": "Tao thanh cong",
-                "payload": ThreadResponse(thread_id=thread_id)
+                "payload": {"thread_id": thread_id}
             }
         )
 
@@ -121,7 +143,10 @@ async def chat(request: ChatRequest):
             content={
                 "success": True,
                 "message": "Chat thanh cong",
-                "payload": ChatResponse(answer=result["output"], thread_id=thread_id)
+                "payload": {
+                    "answer": result["output"],
+                    "thread_id": thread_id
+                }
             }
         )
     except Exception as e:

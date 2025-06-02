@@ -16,6 +16,8 @@ def recommend_scholarship(db, user):
     for criteria in criterias:
         profile_criteria_np.append(profile_criteria[criteria]["score"])
 
+    print(profile_criteria_np, flush=True)
+
     profile_criteria_np = np.array(profile_criteria_np)
 
     points = []

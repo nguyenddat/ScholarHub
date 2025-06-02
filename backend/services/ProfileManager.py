@@ -49,10 +49,8 @@ class ProfileManager:
         finally:
             db.close()
 
-        with self.lock:
-            self.profile_last_time.pop(user_id, None)
-            if not self.profile_last_time:
-                self.wait_for_update = False
+        if len(self.profiles) == 0:
+            self.wait_for_update = False
 
     def re_evaluate(self, db, user_id):
         Profile.update_criteria(db, user_id)
