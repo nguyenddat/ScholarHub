@@ -173,6 +173,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-/database/
-/graph_database/
-/chatbot/
+/database/data/*

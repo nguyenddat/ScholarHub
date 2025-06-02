@@ -54,6 +54,8 @@ class ProfileManager:
 
         if len(self.profiles) == 0:
             self.wait_for_update = False
+        
+        db.close()
 
     def re_evaluate(self, db, user_id):
         Profile.update_criteria(db, user_id)
