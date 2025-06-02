@@ -19,7 +19,7 @@ class RetrieverManager:
 
     def _monitor(self):
         while True:
-            time.sleep(3)
+            time.sleep(10)
             with self.lock:
                 elapsed = time.time() - self.last_request_time
                 

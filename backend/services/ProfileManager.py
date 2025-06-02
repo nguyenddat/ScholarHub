@@ -19,7 +19,7 @@ class ProfileManager:
 
     def _monitor(self):
         while True:
-            time.sleep(3)
+            time.sleep(30)
             with self.lock:
                 if self.wait_for_update:
                     expired_users = [user_id for user_id, last_time in zip(self.profiles, self.last_request_time)
