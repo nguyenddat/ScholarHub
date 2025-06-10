@@ -3,6 +3,7 @@ from typing import *
 def cal_weights(weights: Optional[Dict[int, str]] = None):
     criteria_weights = {
         "education_criteria": 0.0,
+        "personal_criteria": 0.0,
         "experience_criteria": 0.0,
         "research_criteria": 0.0,
         "achievement_criteria": 0.0,
@@ -29,11 +30,12 @@ def cal_weights(weights: Optional[Dict[int, str]] = None):
     else:
         # Trọng số mặc định chia đều
         criteria_weights = {
-            "education_criteria": 1 / 5,
-            "experience_criteria": 1 / 5,
-            "research_criteria": 1 / 5,
-            "achievement_criteria": 1 / 5,
-            "certification_criteria": 1 / 5
+            "education_criteria": 1 / 6,
+            "personal_criteria": 1 / 6,
+            "experience_criteria": 1 / 6,
+            "research_criteria": 1 / 6,
+            "achievement_criteria": 1 / 6,
+            "certification_criteria": 1 / 6
         }
 
     return criteria_weights
