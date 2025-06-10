@@ -23,5 +23,9 @@ class Settings(BaseModel):
     CRAWL_API_KEY: str = os.getenv("CRAWL_API_KEY")
 
     OPENAPI_API_KEY: str = os.getenv("OPENAPI_API_KEY")
+    
+    @property
+    def STATIC_DIR(self) -> str:
+        return os.path.join(self.BASE_DIR, "uploads")
 
 settings = Settings()

@@ -17,7 +17,8 @@ from api.v1.Profile import (
     Reference as reference_router,
     Personal as personal_router,
     Profile as profile_router,
-    Certification as certification_router
+    Certification as certification_router,
+    Avatar as avatar_router
 )
 
 from api.v1.Auth.auth import router as Auth_Router
@@ -28,7 +29,7 @@ from api.v1.chat.routes import router as Chatbot_Router
 from api.v1.Community import Posts as community_posts_router
 from api.v1.Community import Connections as community_connections_router
 from api.v1.Community import Upload as community_upload_router
-from api.v1.Profile.Document import router as document_router
+from api.v1.Community import Follow as follow_router
 
 
 def get_application() -> FastAPI:
@@ -65,14 +66,13 @@ def get_application() -> FastAPI:
     application.include_router(personal_router.router, prefix = "/api/v1/user", tags = ["User - Personal"])
     application.include_router(profile_router.router, prefix = "/api/v1/user", tags = ["User - Profile"])
     application.include_router(certification_router.router, prefix = "/api/v1/user", tags = ["User - Certification"])
+    application.include_router(avatar_router.router, prefix = "/api/v1/user", tags = ["User - Avatar"])
 
     # Community section
     application.include_router(community_posts_router.router, prefix="/api/v1/community", tags=["Community - Posts"])
     application.include_router(community_connections_router.router, prefix="/api/v1/community", tags=["Community - Connections"])
     application.include_router(community_upload_router.router, prefix="/api/v1/community", tags=["Community - Upload"])
-
-    # Thêm vào phần routes
-    application.include_router(document_router, prefix="/api/v1/profile", tags=["Documents"])
+    application.include_router(follow_router.router, prefix="/api/v1/community", tags=["Community - Follow"])
 
     return application
 
