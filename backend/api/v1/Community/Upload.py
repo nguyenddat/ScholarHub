@@ -90,8 +90,9 @@ async def upload_file(
         
         # Create full URL for frontend
         from core.config import settings
-        base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
-        file_url = f"{base_url}/uploads/{category}s/{unique_filename}"
+        # base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+        # file_url = f"{base_url}/uploads/{category}s/{unique_filename}"
+        file_url = f"/uploads/{category}s/{unique_filename}"
         
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -132,7 +133,7 @@ async def upload_multiple_files(
             raise HTTPException(status_code=400, detail="Maximum 10 files allowed")
         
         uploaded_files = []
-        base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+        # base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
         
         for file in files:
             # Validate file
@@ -155,7 +156,8 @@ async def upload_multiple_files(
                 buffer.write(content)
             
             # Add to results with full URL
-            file_url = f"{base_url}/uploads/{category}s/{unique_filename}"
+            # file_url = f"{base_url}/uploads/{category}s/{unique_filename}"
+            file_url = f"/uploads/{category}s/{unique_filename}"
             uploaded_files.append({
                 "file_url": file_url,
                 "file_name": file.filename or "unknown",

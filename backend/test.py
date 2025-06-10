@@ -8,11 +8,25 @@ from tqdm import tqdm
 with open(os.path.join(settings.BASE_DIR, "artifacts", "WebScrape", "data.json"), "r", encoding="utf-8") as f:
     data = json.load(f)
 
-login_url = "https://scholarhub-be.ript.vn/api/v1/auth/login"
+# register_payload = {
+#     "email": "ript@gmail.com",
+#     "password": "Ript!@#123",
+# }
+# register_url = "https://scholarhub-be.ript.vn/api/v1/auth/register"
+# response = requests.post(register_url, json=register_payload)
+# if response.status_code == 200:
+#     print("User registered successfully.")
+# else:
+#     print("User registration failed. Status code:", response.status_code)
+#     print("Response:", response.json())
+
 login_payload = {
     "username": "ript@gmail.com",
     "password": "Ript!@#123"
 }
+
+
+login_url = "https://scholarhub-be.ript.vn/api/v1/auth/login"
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
 response = requests.post(login_url, data=login_payload, headers=headers)
 token = response.json()["payload"]["access_token"]
@@ -22,7 +36,11 @@ post_headers = {
     "Content-Type": "application/json"
 }
 
-for scholarship in tqdm(data, desc = "Posting Scholarship"):
+
+for i, scholarship in tqdm(enumerate(data), desc = "Posting Scholarship"):
+    if i > 10:
+        break
+    
     criteria = {
         0: "education_criteria",
         1: "experience_criteria",

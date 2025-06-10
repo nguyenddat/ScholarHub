@@ -16,6 +16,7 @@ from .ProfileEvaluation import ProfileEvaluation
 from .Publication import Publication
 from .Reference import Reference
 from .ScholarshipApplication import ScholarshipApplication
+from .SavedPost import SavedPost
 from .UserPoints import UserPoints
 from .UserScholarshipBookmark import UserScholarshipBookmark
 from .CommunityCommentReaction import CommunityCommentReaction

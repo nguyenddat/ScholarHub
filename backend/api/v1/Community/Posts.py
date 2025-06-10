@@ -36,7 +36,6 @@ def get_posts(
         posts = posts_query.offset(offset).limit(limit).all()
         
         posts_data = []
-        base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
         
         for post in posts:
             # Count reactions, comments, AND reposts
@@ -75,7 +74,7 @@ def get_posts(
                 if post.image.startswith('http'):
                     image_url = post.image
                 else:
-                    image_url = f"{base_url}{post.image}"
+                    image_url = f"{post.image}"
             
             # Handle video URL
             video_url = None
@@ -83,7 +82,7 @@ def get_posts(
                 if post.video.startswith('http'):
                     video_url = post.video
                 else:
-                    video_url = f"{base_url}{post.video}"
+                    video_url = f"{post.video}"
             
             # Handle files URLs
             files_urls = []
@@ -92,7 +91,7 @@ def get_posts(
                     if file_url.startswith('http'):
                         files_urls.append(file_url)
                     else:
-                        files_urls.append(f"{base_url}{file_url}")
+                        files_urls.append(f"{file_url}")
             
             # Lấy tên hiển thị từ profile hoặc email
             author_name = post.author.email.split('@')[0]  # default
@@ -620,7 +619,7 @@ def get_saved_posts(
         saved_posts = saved_posts_query.offset(offset).limit(limit).all()
         
         posts_data = []
-        base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
+        # base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
         
         for saved_post in saved_posts:
             post = saved_post.post
@@ -655,16 +654,16 @@ def get_saved_posts(
             # Handle URLs (giống GET posts)
             image_url = None
             if post.image:
-                image_url = f"{base_url}{post.image}" if not post.image.startswith('http') else post.image
+                image_url = f"{post.image}" if not post.image.startswith('http') else post.image
             
             video_url = None 
             if post.video:
-                video_url = f"{base_url}{post.video}" if not post.video.startswith('http') else post.video
+                video_url = f"{post.video}" if not post.video.startswith('http') else post.video
             
             files_urls = []
             if post.files:
                 for file_url in post.files:
-                    files_urls.append(f"{base_url}{file_url}" if not file_url.startswith('http') else file_url)
+                    files_urls.append(f"{file_url}" if not file_url.startswith('http') else file_url)
             
             # Get author name
             author_name = post.author.email.split('@')[0]
