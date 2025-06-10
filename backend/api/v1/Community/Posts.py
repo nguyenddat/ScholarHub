@@ -120,9 +120,10 @@ def get_posts(
                 "tags": post.tags or [],
                 "timestamp": _format_timestamp(post.created_at),
                 "author": {
+                    "id": str(post.author.id),
                     "name": author_name,
                     "role": getattr(post.author, 'role', 'Student'),
-                    "avatar": None  # Fix avatar như đã làm trước đó
+                    "avatar": None
                 },
                 "reactions": {
                     "likes": reactions_count,
@@ -385,6 +386,7 @@ def get_comments(
                 "content": comment.content,
                 "timestamp": _format_timestamp(comment.created_at),
                 "author": {
+                    "id": str(comment.author.id),
                     "name": author_name,
                     "role": getattr(comment.author, 'role', 'Student'),
                     "avatar": getattr(comment.author, 'avatar', '/placeholder.svg?height=40&width=40')
@@ -691,6 +693,7 @@ def get_saved_posts(
                 "timestamp": _format_timestamp(post.created_at),
                 "savedAt": _format_timestamp(saved_post.saved_at),  # Thêm thời gian save
                 "author": {
+                    "id": str(post.author.id),
                     "name": author_name,
                     "role": getattr(post.author, 'role', 'Student'),
                     "avatar": None
@@ -756,6 +759,62 @@ def get_saved_posts_count(
             content={
                 "success": False,
                 "message": f"Lỗi khi đếm saved posts: {str(e)}"
+            }
+        )
+
+@router.post("/posts/{post_id}/delete")
+def delete_post(
+    post_id: str,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    """Xóa post (chỉ author mới được xóa)"""
+    try:
+        post = db.query(CommunityPost).filter(CommunityPost.id == post_id).first()
+        if not post:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "success": False,
+                    "message": "Post không tồn tại"
+                }
+            )
+
+        if post.author_id != user.id:
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={
+                    "success": False,
+                    "message": "Bạn không có quyền xóa bài viết này"
+                }
+            )
+        
+        saved_posts_deleted = db.query(SavedPost).filter(SavedPost.post_id == post_id).delete()
+        reposts_deleted = db.query(CommunityPost).filter(CommunityPost.repost_of == post_id).delete()
+        
+        db.delete(post)
+        db.commit()
+        
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "success": True,
+                "message": "Đã xóa bài viết thành công",
+                "payload": {
+                    "deleted_post_id": str(post_id),
+                    "saved_posts_deleted": saved_posts_deleted,
+                    "reposts_deleted": reposts_deleted
+                }
+            }
+        )
+    
+    except Exception as e:
+        db.rollback()
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "success": False,
+                "message": f"Lỗi khi xóa bài viết: {str(e)}"
             }
         )
 
