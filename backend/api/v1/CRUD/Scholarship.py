@@ -71,7 +71,7 @@ def get_scholarship(
 
 @router.post("/post-scholarship")
 def post_scholarship(
-    payload: PostScholarshipRequest, 
+    payload: PostScholarshipRequest,
     db = Depends(get_db),
     user = Depends(get_current_user)
 ):
@@ -81,8 +81,9 @@ def post_scholarship(
     weights = cal_weights(data["weights"])
     data.pop("weights")
 
-    for key in weights.keys():
-        data[f"{key.split("_")[0]}_weights"] = weights[key]
+    for key, value in weights.items():
+        prefix = key.split("_")[0]
+        data[f"{prefix}_weights"] = value
 
     scholarship_description = scholarship_to_description(payload)
     scholarship_criteria = extract_scholarship(scholarship_description)
