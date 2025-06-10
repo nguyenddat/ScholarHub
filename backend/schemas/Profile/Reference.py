@@ -15,9 +15,9 @@ class ReferenceCreateRequest(BaseModel):
 
 class ReferenceUpdateRequest(BaseModel):
     id: str
-    name: str
-    type: Optional[str] = "academic"
-    job_title: str
-    organization: str
-    relationship: str
-    email: EmailStr
+    name: Optional[str] = None
+    type: Optional[str] = None
+    job_title: Optional[str] = None
+    organization: Optional[str] = None
+    relationship: Optional[str] = None
+    email: Optional[EmailStr] = None
