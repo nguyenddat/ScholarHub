@@ -16,7 +16,7 @@ def cal_weights(weights: Optional[Dict[int, str]] = None):
 
         for i, (_, key) in enumerate(sorted_items):
             if key not in criteria_weights:
-                raise ValueError(f"Không tìm thấy key: {key}")
+                continue
 
             weight = 1 / (2 ** i)
             criteria_weights[key] = weight
