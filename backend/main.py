@@ -51,6 +51,7 @@ def get_application() -> FastAPI:
     
     # Serve static files
     application.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+    application.mount("/profile_media", StaticFiles(directory="uploads/profile_media"), name="profile_media")
     
     application.include_router(Auth_Router, prefix = "/api/v1/auth", tags = ["Auth"])
     application.include_router(CRUD_Scholarship_Router, prefix = "/api/v1", tags = ["CRUD"])
