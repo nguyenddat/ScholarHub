@@ -66,7 +66,7 @@ def update_achievement(
             "payload": {
                 "achievement": achievement
             } 
-        }
+        } 
     )
 
 @router.get("/achievement")

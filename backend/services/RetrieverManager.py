@@ -30,7 +30,6 @@ class RetrieverManager:
             if do_reingest:
                 print("[Retrieve Monitor] Re-ingesting vector store...")
                 self.re_ingest()
-                print("[Retrieve Monitor] Done re-ingest vector store!")
 
     def record_request(self):
         with self.lock:
@@ -41,6 +40,8 @@ class RetrieverManager:
     def re_ingest(self):
         try:
             self.retriever.re_ingest()
+            print("[Retrieve Monitor] Done re-ingest vector store!")
+
         except Exception as e:
             print(f"[RetrieverManager] Re-ingest failed: {e}")
             return

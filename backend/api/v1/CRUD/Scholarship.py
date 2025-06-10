@@ -25,67 +25,47 @@ def get_scholarship(
     limit: int = 10,
     offset: int = 0
 ):
-    # try:
-        if not suggest:
-            if id is not None:
-                payload = Scholarship.get(db = db, mode = "filter", params = {"id": id})
-                if len(payload) > 0:
-                    payload = payload[0]
-            
-            else:
-                payload = Scholarship.get(db, "all", limit = limit, offset = offset)
+    if not suggest:
+        if id is not None:
+            payload = Scholarship.get(db = db, mode = "filter", params = {"id": id})
+            if len(payload) > 0:
+                payload = payload[0]
+        
         else:
-            payload = recommend_scholarship(db = db, user = user)
+            payload = Scholarship.get(db, "all", limit = limit, offset = offset)
+    else:
+        payload = recommend_scholarship(db = db, user = user)
 
-        return JSONResponse(
-            status_code = status.HTTP_200_OK,
-            content = {        
-                    "success": True, 
-                    "message": "Lấy danh sách học bổng thành công",
-                    "payload": {
-                        "scholarships": payload
-                    },
-                }
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {        
+                "success": True, 
+                "message": "Lấy danh sách học bổng thành công",
+                "payload": {"scholarships": payload}}
         )
-
-    # except Exception as e:
-    #     print(str(e))
-    #     return JSONResponse(
-    #         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-    #         content = str(e)
-    #     )
 
 
 @router.get("/manage-scholarships")
 def get_scholarship(
+    limit: int = 10,
+    offset: int = 0,
     db = Depends(get_db),
     user = Depends(get_current_user),
-    limit: int = 10,
-    offset: int = 0
 ):
-    try:
-        payload = Scholarship.get(
-            db = db, 
-            mode = "filter",
-            params = {"submitted_by": user.id},
-            limit = limit,
-            offset = offset
-        )
-        return JSONResponse(
-            status_code = status.HTTP_200_OK,
-            content = {        
-                    "success": True, 
-                    "message": "Lấy danh sách học bổng thành công",
-                    "payload": {
-                        "scholarships": payload
-                    },
-                }
-        )
-
-    except Exception as e:
-        return JSONResponse(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = str(e)
+    payload = Scholarship.get(
+        db = db, 
+        mode = "filter",
+        params = {"submitted_by": user.id},
+        limit = limit,
+        offset = offset
+    )
+    
+    return JSONResponse(
+        status_code = status.HTTP_200_OK,
+        content = {        
+                "success": True, 
+                "message": "Lấy danh sách học bổng thành công",
+                "payload": {"scholarships": payload}}
         )
 
 

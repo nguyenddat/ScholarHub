@@ -17,22 +17,20 @@ class User(BareBaseModel):
     role = Column(Enum(UserRoleEnum), default=UserRoleEnum.user)
     avatar = Column(Text)
     banner = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now())
 
     profile = relationship("Profile", back_populates="user", uselist=False)
     scholarship = relationship("Scholarship", back_populates="user")
     community_posts = relationship("CommunityPost", back_populates="author")
 
     @staticmethod
-    def create_user(db, user: UserCreate):
+    def create(db, user: UserCreate):
         """Tạo người dùng mới"""
+        
+        # Kiểm tra người dùng đã tồn tại
         check_user = db.query(User).filter(User.email == user.email).first()
-        if check_user:
-            return False, "Email đã tồn tại"
-
-        if len(user.password) < 8:
-            return False, "Mật khẩu phải có ít nhất 8 ký tự"
-
+        if check_user: return False, "Email đã tồn tại"
+    
         new_user = User(
             email=user.email,
             password_hash=get_password_hash(user.password),
@@ -45,7 +43,7 @@ class User(BareBaseModel):
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return True, new_user
+        return new_user
 
     @staticmethod
     def authenticate_user(db, email: str, password: str):
