@@ -23,6 +23,9 @@ class User(BareBaseModel):
     scholarship = relationship("Scholarship", back_populates="user")
     community_posts = relationship("CommunityPost", back_populates="author")
 
+    following = relationship("Follow", foreign_keys="[Follow.follower_id]", back_populates="follower", cascade="all, delete-orphan")
+    followers = relationship("Follow", foreign_keys="[Follow.followed_id]", back_populates="followed", cascade="all, delete-orphan")
+    
     @staticmethod
     def create(db, user: UserCreate):
         """Tạo người dùng mới"""
