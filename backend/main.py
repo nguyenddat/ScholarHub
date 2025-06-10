@@ -28,6 +28,7 @@ from api.v1.chat.routes import router as Chatbot_Router
 from api.v1.Community import Posts as community_posts_router
 from api.v1.Community import Connections as community_connections_router
 from api.v1.Community import Upload as community_upload_router
+from api.v1.Profile.Document import router as document_router
 
 
 def get_application() -> FastAPI:
@@ -69,6 +70,9 @@ def get_application() -> FastAPI:
     application.include_router(community_posts_router.router, prefix="/api/v1/community", tags=["Community - Posts"])
     application.include_router(community_connections_router.router, prefix="/api/v1/community", tags=["Community - Connections"])
     application.include_router(community_upload_router.router, prefix="/api/v1/community", tags=["Community - Upload"])
+
+    # Thêm vào phần routes
+    application.include_router(document_router, prefix="/api/v1/profile", tags=["Documents"])
 
     return application
 
