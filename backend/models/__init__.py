@@ -19,3 +19,4 @@ from .ScholarshipApplication import ScholarshipApplication
 from .UserPoints import UserPoints
 from .UserScholarshipBookmark import UserScholarshipBookmark
 from .CommunityCommentReaction import CommunityCommentReaction
+from .SavedPost import SavedPost
