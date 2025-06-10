@@ -5,10 +5,10 @@ from core.config import settings
 from tqdm import tqdm
 
 # Đọc dữ liệu học bổng
-with open(os.path.join(settings.BASE_DIR, "artifacts", "WebScrape", "data1.json"), "r", encoding="utf-8") as f:
+with open(os.path.join(settings.BASE_DIR, "artifacts", "WebScrape", "data.json"), "r", encoding="utf-8") as f:
     data = json.load(f)
 
-login_url = "http://localhost:8000/api/v1/auth/login"
+login_url = "https://scholarhub-be.ript.vn/api/v1/auth/login"
 login_payload = {
     "username": "ript@gmail.com",
     "password": "Ript!@#123"

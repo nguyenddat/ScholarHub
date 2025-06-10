@@ -25,7 +25,7 @@ def get_scholarship(
     limit: int = 10,
     offset: int = 0
 ):
-    try:
+    # try:
         if not suggest:
             if id is not None:
                 payload = Scholarship.get(db = db, mode = "filter", params = {"id": id})
@@ -48,12 +48,12 @@ def get_scholarship(
                 }
         )
 
-    except Exception as e:
-        print(str(e))
-        return JSONResponse(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content = str(e)
-        )
+    # except Exception as e:
+    #     print(str(e))
+    #     return JSONResponse(
+    #         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+    #         content = str(e)
+    #     )
 
 
 @router.get("/manage-scholarships")

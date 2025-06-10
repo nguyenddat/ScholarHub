@@ -260,7 +260,8 @@ def get_chat_history(user_id: str, thread_id: str, limit: int = 10, offset: int 
                         message_dict["metadata"] = json.loads(message_dict["metadata"])
                     except json.JSONDecodeError:
                         message_dict["metadata"] = None
-                        
+            
+            message_dict["created_at"] = str(message_dict["created_at"])   
             processed_results.append(message_dict)
             
         return processed_results
@@ -330,7 +331,7 @@ def get_thread_summary(user_id: str, thread_id: str) -> Dict[str, Any]:
             FROM message
             WHERE user_id = :user_id AND thread_id = :thread_id
             """),
-            {"user_id": user_id, "thread_id": thread_id}
+            {"user_id": user_id, "thread_id": str(thread_id)}
         ).first() 
         
         first_message_ts = None
@@ -343,8 +344,8 @@ def get_thread_summary(user_id: str, thread_id: str) -> Dict[str, Any]:
             "user_id": user_id,
             "thread_id": thread_id,
             "message_count": message_count,
-            "first_message": first_message_ts,
-            "last_message": last_message_ts
+            "first_message": str(first_message_ts),
+            "last_message": str(last_message_ts)
         }
     except Exception as e:
         raise
@@ -376,10 +377,11 @@ def get_user_threads(user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
         # First get distinct thread_ids for this user, ordered by numeric value (newest first)
         thread_ids_result = session.execute(
             text("""
-            SELECT DISTINCT thread_id 
+            SELECT CAST(thread_id AS INTEGER) AS thread_id
             FROM message 
             WHERE user_id = :user_id 
-            ORDER BY CAST(thread_id AS INTEGER) DESC
+            GROUP BY thread_id
+            ORDER BY thread_id DESC
             LIMIT :limit
             """),
             {"user_id": user_id, "limit": limit}
@@ -394,7 +396,7 @@ def get_user_threads(user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
         threads = []
         for thread_id in thread_ids:
             # Get thread summary
-            summary = get_thread_summary(user_id, thread_id)
+            summary = get_thread_summary(user_id, str(thread_id))
             
             # Get latest question from this thread
             latest_message = session.execute(
@@ -405,7 +407,7 @@ def get_user_threads(user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
                 ORDER BY created_at DESC
                 LIMIT 1
                 """),
-                {"user_id": user_id, "thread_id": thread_id}
+                {"user_id": user_id, "thread_id": str(thread_id)}
             ).first()
             
             if latest_message:
