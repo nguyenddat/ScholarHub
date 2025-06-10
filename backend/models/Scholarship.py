@@ -33,6 +33,7 @@ class Scholarship(BareBaseModel):
     research_weights = Column(Float)
     certification_weights = Column(Float)
     achievement_weights = Column(Float)
+    personal_weights = Column(Float)
     scholarship_criteria = Column(JSONB)
 
     deadline = Column(Text)
@@ -106,6 +107,7 @@ class Scholarship(BareBaseModel):
                 "research_weights": scholarship.research_weights,
                 "certification_weights": scholarship.certification_weights,
                 "achievement_weights": scholarship.achievement_weights,
+                "personal_weights": scholarship.personal_weights,
                 "scholarship_criteria": scholarship.scholarship_criteria,
                 "deadline": scholarship.deadline,
                 "description": scholarship.description,
