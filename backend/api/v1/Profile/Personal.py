@@ -47,7 +47,12 @@ def get_personal(
     db=Depends(get_db),
     user=Depends(get_current_user)
 ):
-    result = Profile.get(db=db, user=user)
+    profile_result = Profile.get(db=db, user=user)
+    result = {
+        **profile_result,
+        "avatar": user.avatar,
+        "banner": user.banner
+    }
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,

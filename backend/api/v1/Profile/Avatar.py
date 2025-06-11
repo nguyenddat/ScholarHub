@@ -40,7 +40,7 @@ def update_profile_media(
             f.write(file.file.read())
 
         # Đường dẫn trả về cho frontend
-        static_return = os.path.join("profile_media", str(current_user.id), media_type, filename)
+        static_return = os.path.join("uploads", "profile_media", str(current_user.id), media_type, filename)
 
         # Cập nhật DB
         if media_type == "avatar":

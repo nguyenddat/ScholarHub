@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from database.init_db import get_db
 from models.User import User
+from models.Follow import Follow
 from services.Auth.auth import get_current_user
 
 router = APIRouter()
@@ -13,18 +14,23 @@ def get_connection_suggestions(
     db: Session = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    """Lấy gợi ý kết nối - tạm thời trả về random users"""
     try:
-        # Lấy một số users khác (không phải current user)
-        suggested_users = db.query(User).filter(User.id != user.id).limit(10).all()
+        # Lấy danh sách user IDs mà current user đã follow
+        followed_user_ids = db.query(Follow.followed_id).filter(
+            Follow.follower_id == user.id
+        ).subquery()
+        suggested_users = db.query(User).filter(
+            User.id != user.id,  # Không phải current user
+            ~User.id.in_(followed_user_ids)  # Không trong danh sách đã follow
+        ).limit(10).all()
         
         suggestions = []
         for suggested_user in suggested_users:
             suggestions.append({
                 "id": str(suggested_user.id),
                 "name": suggested_user.email.split('@')[0],  # Tạm dùng email prefix
-                "role": getattr(suggested_user, 'role', 'Student'),
-                "avatar": getattr(suggested_user, 'avatar', '/placeholder.svg?height=48&width=48'),
+                "role": getattr(suggested_user, 'role', 'user'),
+                "avatar": getattr(suggested_user, 'avatar', ''),
                 "mutualConnections": 0,  # Tạm thời
                 "expertise": ["Essay Writing", "Interview Preparation"],  # Mock data
                 "programs": ["Fulbright", "Erasmus+"]  # Mock data

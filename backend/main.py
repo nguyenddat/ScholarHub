@@ -30,6 +30,7 @@ from api.v1.Community import Posts as community_posts_router
 from api.v1.Community import Connections as community_connections_router
 from api.v1.Community import Upload as community_upload_router
 from api.v1.Community import Follow as follow_router
+from api.v1.Profile.Document import router as document_router
 
 
 def get_application() -> FastAPI:
@@ -50,6 +51,7 @@ def get_application() -> FastAPI:
     
     # Serve static files
     application.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+    application.mount("/profile_media", StaticFiles(directory="uploads/profile_media"), name="profile_media")
     
     application.include_router(Auth_Router, prefix = "/api/v1/auth", tags = ["Auth"])
     application.include_router(CRUD_Scholarship_Router, prefix = "/api/v1", tags = ["CRUD"])
@@ -67,6 +69,7 @@ def get_application() -> FastAPI:
     application.include_router(profile_router.router, prefix = "/api/v1/user", tags = ["User - Profile"])
     application.include_router(certification_router.router, prefix = "/api/v1/user", tags = ["User - Certification"])
     application.include_router(avatar_router.router, prefix = "/api/v1/user", tags = ["User - Avatar"])
+    application.include_router(document_router, prefix="/api/v1/profile", tags=["User - Documents"])
 
     # Community section
     application.include_router(community_posts_router.router, prefix="/api/v1/community", tags=["Community - Posts"])

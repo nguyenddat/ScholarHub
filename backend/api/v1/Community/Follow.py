@@ -95,3 +95,59 @@ def delete_follow(
     except Exception as err:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(err)}")
+
+@router.get("/followers")
+def get_followers(
+    user_id: str = Query(...),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1),
+    db = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Lấy danh sách followers của user"""
+    followers = db.query(Follow).filter(
+        Follow.followed_id == user_id
+    ).offset(offset).limit(limit).all()
+
+    result = [
+        {
+            "user_id": str(f.follower.id),
+            "email": f.follower.email,
+            "avatar": f.follower.avatar,
+            "banner": f.follower.banner
+        }
+        for f in followers
+    ]
+
+    return JSONResponse(
+        status_code=200,
+        content={"success": True, "message": "Lấy danh sách followers thành công", "followers": result}
+    )
+
+@router.get("/following")  
+def get_following(
+    user_id: str = Query(...),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1),
+    db = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Lấy danh sách following của user"""
+    follows = db.query(Follow).filter(
+        Follow.follower_id == user_id
+    ).offset(offset).limit(limit).all()
+
+    result = [
+        {
+            "user_id": str(f.followed.id),
+            "email": f.followed.email,
+            "avatar": f.followed.avatar,
+            "banner": f.followed.banner
+        }
+        for f in follows
+    ]
+
+    return JSONResponse(
+        status_code=200,
+        content={"success": True, "message": "Lấy danh sách following thành công", "following": result}
+    )

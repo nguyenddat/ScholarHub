@@ -1,6 +1,6 @@
 from typing import *
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
 
 from database.init_db import get_db
@@ -14,6 +14,8 @@ from models.Achievement import Achievement
 from models.Certification import Certification
 from models.Publication import Publication
 from models.Reference import Reference
+from models.User import User
+from models.Follow import Follow
 
 router = APIRouter()
 
@@ -150,3 +152,24 @@ def get_current_user_profile(
             }
         )
 
+@router.get("/profile/{user_id}/stats")
+def get_profile_stats(
+    user_id: str,
+    db = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    followers_count = db.query(Follow).filter(Follow.followed_id == user_id).count()
+    following_count = db.query(Follow).filter(Follow.follower_id == user_id).count()
+    
+    return JSONResponse({
+        "success": True,
+        "payload": {
+            "followers_count": followers_count,
+            "following_count": following_count,
+            "posts_count": 0  # TODO: Add posts count
+        }
+    })

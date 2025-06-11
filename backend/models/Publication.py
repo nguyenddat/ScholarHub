@@ -12,7 +12,7 @@ class Publication(BareBaseModel):
     title = Column(Text)
     type = Column(Text, default='journal')
     venue_name = Column(Text)
-    publish_date = Column(Date)
+    publication_date = Column(Date)
     url = Column(Text)
 
     @staticmethod
@@ -23,7 +23,7 @@ class Publication(BareBaseModel):
                 title=publication.title,
                 type=publication.type,
                 venue_name=publication.venue_name,
-                publish_date=publication.publish_date,
+                publication_date=publication.publication_date,
                 url=publication.url
             )
             db.add(new_pub)
@@ -34,7 +34,7 @@ class Publication(BareBaseModel):
                 "title": new_pub.title,
                 "type": new_pub.type,
                 "venue_name": new_pub.venue_name,
-                "publish_date": new_pub.publish_date,
+                "publication_date": new_pub.publication_date,
                 "url": new_pub.url
             }
         except Exception as e:
@@ -49,13 +49,18 @@ class Publication(BareBaseModel):
             ).first()
 
             if not record:
-                return True, None
+                return False, "Publication not found"
 
-            record.title = publication.title if publication.title else record.title
-            record.type = publication.type if publication.type else record.type
-            record.venue_name = publication.venue_name if publication.venue_name else record.venue_name
-            record.publish_date = publication.publish_date if publication.publish_date else record.publish_date
-            record.url = publication.url if publication.url else record.url
+            if publication.title is not None:
+                record.title = publication.title
+            if publication.type is not None:
+                record.type = publication.type
+            if publication.venue_name is not None:
+                record.venue_name = publication.venue_name
+            if publication.publication_date is not None:
+                record.publication_date = publication.publication_date
+            if publication.url is not None:
+                record.url = publication.url
 
             db.commit()
             db.refresh(record)
@@ -64,7 +69,7 @@ class Publication(BareBaseModel):
                 "title": record.title,
                 "type": record.type,
                 "venue_name": record.venue_name,
-                "publish_date": record.publish_date,
+                "publication_date": record.publication_date,
                 "url": record.url
             }
 
@@ -83,15 +88,19 @@ class Publication(BareBaseModel):
                 db.delete(record)
                 db.commit()
                 return True
+            return False
         except Exception as e:
             return False
 
     @staticmethod
     def get(db, user, params={}):
-        query = db.query(Publication).filter(Publication.user_id == user.id)
-        if params:
-            for key, value in params.items():
-                query = query.filter(getattr(Publication, key) == value)
+        try:
+            query = db.query(Publication).filter(Publication.user_id == user.id)
+            if params:
+                for key, value in params.items():
+                    query = query.filter(getattr(Publication, key) == value)
 
-        publications = query.all()
-        return [to_dict(pub) for pub in publications]
+            publications = query.all()
+            return True, [to_dict(pub) for pub in publications]
+        except Exception as e:
+            return False, str(e)

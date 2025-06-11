@@ -52,14 +52,20 @@ class Reference(BareBaseModel):
             ).first()
 
             if not reference_record:
-                return True, None
+                return False, "Reference không tồn tại"
 
-            reference_record.name = reference.name
-            reference_record.type = reference.type
-            reference_record.job_title = reference.job_title
-            reference_record.organization = reference.organization
-            reference_record.relationship = reference.relationship
-            reference_record.email = reference.email
+            if reference.name is not None:
+                reference_record.name = reference.name
+            if reference.type is not None:
+                reference_record.type = reference.type
+            if reference.job_title is not None:
+                reference_record.job_title = reference.job_title
+            if reference.organization is not None:
+                reference_record.organization = reference.organization
+            if reference.relationship is not None:
+                reference_record.relationship = reference.relationship
+            if reference.email is not None:
+                reference_record.email = reference.email
 
             db.commit()
             db.refresh(reference_record)
@@ -94,10 +100,13 @@ class Reference(BareBaseModel):
 
     @staticmethod
     def get(db, user, params={}):
-        base_query = db.query(Reference).filter(Reference.user_id == user.id)
-        if params:
-            for key, value in params.items():
-                base_query = base_query.filter(getattr(Reference, key) == value)
+        try:
+            base_query = db.query(Reference).filter(Reference.user_id == user.id)
+            if params:
+                for key, value in params.items():
+                    base_query = base_query.filter(getattr(Reference, key) == value)
 
-        references = base_query.all()
-        return [to_dict(ref) for ref in references]
+            references = base_query.all()
+            return True, [to_dict(ref) for ref in references]
+        except Exception as e:
+            return False, str(e)
