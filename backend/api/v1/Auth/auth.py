@@ -21,18 +21,42 @@ router = APIRouter()
 
 
 @router.post("/register")
-async def register(user_data: UserCreate, db: Session = Depends(get_db)) -> Any:
+async def register(
+    user_data: UserCreate, 
+    db: Session = Depends(get_db)
+) -> Any:
+    
     """Đăng ký người dùng mới"""
     try:
-        user = User.create(db, user_data)
-        profile = Profile.create(db = db, user = user, profile = PersonalCreateRequest())
-        return JSONResponse(
-            status_code=status.HTTP_201_CREATED,
-            content={
-                "success": True, 
-                "message": "Đăng ký thành công", 
-                "payload": {"user": to_dict(user)}}
+        success, user = User.create_user(db, user_data)       
+        if not success:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={        
+                    "success": False, 
+                    "message": user,
+                    "payload": {
+                        "user": None
+                    },
+                }
             )
+
+        else:
+            try:
+                profile = Profile.create(db = db, user = user, profile = PersonalCreateRequest())
+                return JSONResponse(
+                    status_code=status.HTTP_201_CREATED,
+                    content={
+                        "success": True, 
+                        "message": "Đăng ký thành công", 
+                        "payload": {
+                        "user": to_dict(user)
+                        }
+                    }
+                )
+
+            except Exception as err:
+                print(str(err))
     
     except Exception as e:
         return JSONResponse(
@@ -40,12 +64,18 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)) -> Any:
             content={
                 "success": False, 
                 "message": f"Đã xảy ra lỗi: {str(e)}", 
-                "payload": {"user": None}}
-            )
+                "payload": {
+                    "user": None
+                }
+            }
+        )
 
 
 @router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Any:
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+) -> Any:
     """Đăng nhập và lấy token"""
     success, user = User.authenticate_user(db, form_data.username, form_data.password)
     if not success:
@@ -66,11 +96,16 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
             "payload": {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
-                "token_type": "bearer"}})
+                "token_type": "bearer"
+            }}
+        )
 
 
 @router.post("/refresh-token", response_model=Token)
-async def refresh_token(token: RefreshToken, db: Session = Depends(get_db)) -> Any:
+async def refresh_token(
+    token: RefreshToken, 
+    db: Session = Depends(get_db)
+) -> Any:
     """Làm mới access token bằng refresh token"""
     try:
         payload = jwt.decode(token.refresh_token, settings.SECRET_KEY, algorithms=[settings.SECURITY_ALGORITHM])
