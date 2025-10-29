@@ -60,13 +60,3 @@ class Achievement(BareBaseModel):
             db.delete(record)
             db.commit()
             return True
-
-    @staticmethod
-    def get(db, user, params={}):
-        query = db.query(Achievement).filter(Achievement.user_id == user.id)
-        if params:
-            for key, value in params.items():
-                query = query.filter(getattr(Achievement, key) == value)
-
-        achievements = query.all()
-        return [to_dict(a) for a in achievements]

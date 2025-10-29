@@ -1,13 +1,17 @@
+from typing import List
+
 from jose import JWTError, jwt
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 
+from models import User
 from core import settings
 from database.init_db import get_db
 from services import UserService
+from helpers.Enums import UserRoleEnum
 from helpers.security import verifyPassword, createAccessToken, createRefreshToken
-from schemas.Auth.auth import RefreshToken, TokenData
+from schemas.Auth.auth import RefreshToken
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 class AuthService:
@@ -60,7 +64,7 @@ class AuthService:
                 "token_type": "bearer"
             }
 
-
+    @staticmethod
     def getCurrentUser(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
         credentials_exception = HTTPException(
             status_code=401,
@@ -81,3 +85,38 @@ class AuthService:
             raise credentials_exception
         
         return user
+
+
+    @staticmethod
+    def getCurrentActiveUser() -> User:
+        def _get_current_active_user(current_user: User = Depends(AuthService.getCurrentUser)):
+            if not current_user:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Inactive user",
+                )
+            return current_user
+        return _get_current_active_user
+
+    @staticmethod
+    def adminRequired() -> User:
+        def _check_admin_required(current_user: User = Depends(AuthService.getCurrentUser)):
+            if not current_user.role == UserRoleEnum.admin:
+                raise HTTPException(
+                    status_code=403,
+                    detail="The user doesn't have enough privileges",
+                )
+            return current_user
+        return _check_admin_required
+
+
+    @staticmethod
+    def checkUserRoles(required_roles: List[UserRoleEnum]):
+        def _check_user_role(current_user: User = Depends(AuthService.getCurrentUser)) -> User:
+            if current_user.role not in required_roles:
+                raise HTTPException(
+                    status_code=403,
+                    detail="The user doesn't have enough privileges",
+                )
+            return current_user
+        return _check_user_role
