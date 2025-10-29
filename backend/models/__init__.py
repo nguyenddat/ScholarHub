@@ -1,24 +1,18 @@
-from .User import User
-from .Scholarship import Scholarship
-from .Profile import Profile
-from .Achievement import Achievement
-from .ApplicationDocument import ApplicationDocument
-from .Certification import Certification
-from .CommunityPost import CommunityPost
-from .CommunityReaction import CommunityReaction
-from .CommunityComment import CommunityComment
-from .Connection import Connection
-from .Document import Document
-from .Education import Education
-from .Experience import Experience
-from .FeaturedUser import FeaturedUser
-from .ProfileEvaluation import ProfileEvaluation
-from .Publication import Publication
-from .Reference import Reference
-from .ScholarshipApplication import ScholarshipApplication
-from .SavedPost import SavedPost
-from .UserPoints import UserPoints
-from .UserScholarshipBookmark import UserScholarshipBookmark
-from .CommunityCommentReaction import CommunityCommentReaction
-from .SavedPost import SavedPost
-from .Follow import Follow
+from models.BaseClass import Base, BareBaseModel
+
+from models.user import (
+    User, FeaturedUser, UserPoints, ProfileEvaluation
+)
+
+from models.scholarship import (
+    Scholarship, ScholarshipApplication, UserScholarshipBookmark, ApplicationDocument
+)
+
+from models.profile import (
+    Profile, Achievement, Certification, Document, Education, Experience, Publication, Reference
+)
+
+from models.community import (
+    CommunityPost, CommunityComment, CommunityCommentReaction, Connection,
+    Follow, CommunityReaction, SavedPost
+)
