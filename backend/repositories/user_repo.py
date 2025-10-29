@@ -2,7 +2,7 @@ from typing import Optional, Union
 
 from sqlalchemy.orm import Session
 
-from models.User import User
+from models import User
 
 class UserRepository:
     @staticmethod
@@ -13,8 +13,6 @@ class UserRepository:
 
         return user
         
-
-    
     @staticmethod
     def getByEmail(email: str, db: Session) -> Union[User, None]:
         user = db.query(User).filter(User.email == email).first()
