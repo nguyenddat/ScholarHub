@@ -40,6 +40,7 @@ class CertificationRepository:
     @staticmethod
     def toDict(certification: Certification, user_id: bool=False):
         res = {
+            "id": str(certification.id),
             "name": certification.name,
             "type": certification.type,
             "provider": certification.provider,

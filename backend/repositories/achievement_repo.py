@@ -40,6 +40,7 @@ class AchievementRepository:
     @staticmethod
     def toDict(achievement: Achievement, user_id: bool=False):
         res = {
+            "id": str(achievement.id),
             "title": achievement.title,
             "issuer": achievement.issuer,
             "award_date": achievement.award_date,
