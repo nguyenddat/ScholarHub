@@ -10,8 +10,8 @@ class DocumentService:
         return DocumentRepository.getByUserId(id, db)
 
     @staticmethod
-    def create(certification: Document, db: Session):
-        return DocumentRepository.create(certification, db)
+    def create(document: Document, db: Session):
+        return DocumentRepository.create(document, db)
     
     @staticmethod
     def update(id: int, update_data: dict, db: Session):

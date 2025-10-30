@@ -10,8 +10,8 @@ class ExperienceService:
         return ExperienceRepository.getByUserId(id, db)
 
     @staticmethod
-    def create(achievement: Experience, db: Session):
-        return ExperienceRepository.create(achievement, db)
+    def create(experience: Experience, db: Session):
+        return ExperienceRepository.create(experience, db)
     
     @staticmethod
     def update(id: int, update_data: dict, db: Session):

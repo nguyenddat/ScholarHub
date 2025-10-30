@@ -10,8 +10,8 @@ class PublicationService:
         return PublicationRepository.getByUserId(id, db)
 
     @staticmethod
-    def create(achievement: Publication, db: Session):
-        return PublicationRepository.create(achievement, db)
+    def create(publication: Publication, db: Session):
+        return PublicationRepository.create(publication, db)
     
     @staticmethod
     def update(id: int, update_data: dict, db: Session):

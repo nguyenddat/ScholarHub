@@ -10,8 +10,8 @@ class EducationService:
         return EducationRepository.getByUserId(id, db)
 
     @staticmethod
-    def create(achievement: Achievement, db: Session):
-        return EducationRepository.create(achievement, db)
+    def create(education: Achievement, db: Session):
+        return EducationRepository.create(education, db)
     
     @staticmethod
     def update(id: int, update_data: dict, db: Session):
