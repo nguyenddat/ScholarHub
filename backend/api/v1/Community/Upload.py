@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database.init_db import get_db
-from services.Auth.auth import get_current_user
+from services import AuthService
 
 router = APIRouter()
 
@@ -65,7 +65,7 @@ async def validate_file(file: UploadFile) -> tuple[str, int]:
 async def upload_file(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Upload single file (image/video/document)"""
     try:
@@ -125,7 +125,7 @@ async def upload_file(
 async def upload_multiple_files(
     files: List[UploadFile] = File(...),
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Upload multiple files"""
     try:

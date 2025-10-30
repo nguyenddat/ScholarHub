@@ -7,15 +7,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database.init_db import get_db
-from models.CommunityPost import CommunityPost
-from models.CommunityReaction import CommunityReaction
-from models.CommunityComment import CommunityComment
-from models.User import User
-from models.Profile import Profile
+from models import CommunityPost, CommunityReaction, CommunityComment, User, Profile, CommunityCommentReaction, SavedPost
 from schemas.Community.Posts import *
-from services.Auth.auth import get_current_user
-from models.CommunityCommentReaction import CommunityCommentReaction
-from models.SavedPost import SavedPost
+from services import AuthService
 
 router = APIRouter()
 
@@ -24,7 +18,7 @@ def get_posts(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Lấy danh sách posts với pagination"""
     try:
@@ -165,7 +159,7 @@ def get_posts(
 def create_post(
     payload: PostCreateRequest,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Tạo post mới"""
     try:
@@ -217,7 +211,7 @@ def toggle_reaction(
     post_id: str,
     payload: ReactionRequest,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Toggle reaction (like/unlike)"""
     try:
@@ -282,7 +276,7 @@ def toggle_comment_reaction(
     comment_id: str,
     payload: ReactionRequest,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Toggle comment reaction (like/unlike)"""
     try:
@@ -345,7 +339,7 @@ def toggle_comment_reaction(
 def get_comments(
     post_id: str,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Lấy comments của post"""
     try:
@@ -419,7 +413,7 @@ def create_comment(
     post_id: str,
     payload: CommentCreateRequest,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Tạo comment mới"""
     try:
@@ -473,7 +467,7 @@ def create_comment(
 def create_repost(
     post_id: str,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Tạo repost - tạo post mới từ post gốc"""
     try:
@@ -540,7 +534,7 @@ def create_repost(
 def toggle_save_post(
     post_id: str,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Toggle save post (save/unsave)"""
     try:
@@ -606,7 +600,7 @@ def get_saved_posts(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Lấy danh sách saved posts của user"""
     try:
@@ -736,7 +730,7 @@ def get_saved_posts(
 @router.get("/saved-posts/count")
 def get_saved_posts_count(
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Lấy số lượng saved posts của user"""
     try:
@@ -765,7 +759,7 @@ def get_saved_posts_count(
 def delete_post(
     post_id: str,
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     """Xóa post (chỉ author mới được xóa)"""
     try:

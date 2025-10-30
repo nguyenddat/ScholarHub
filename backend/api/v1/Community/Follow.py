@@ -4,10 +4,9 @@ from typing import *
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends, APIRouter, Query
 from fastapi.responses import JSONResponse
 
-from models.Follow import Follow
-from models.User import User
+from models import Follow, User
 from database.init_db import get_db
-from services.Auth.auth import get_current_user
+from services import AuthService
 
 router = APIRouter()
 
@@ -16,7 +15,7 @@ def get_follows(
     offset: int = Query(0, ge=0),
     limit: int = Query(10, ge=1),
     db = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(AuthService.getCurrentUser)
 ):
     follows = db.query(Follow).filter(
         Follow.follower_id == current_user.id
@@ -41,7 +40,7 @@ def get_follows(
 def follow(
     user_id: str,
     db = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(AuthService.getCurrentUser)
 ):
     followed_user = db.query(User).filter(User.id == user_id).first()
     if not followed_user:
@@ -74,7 +73,7 @@ def follow(
 def delete_follow(
     user_id: str,
     db = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user = Depends(AuthService.getCurrentUser)
 ):
     existed_follow = db.query(Follow).filter(
         Follow.follower_id == current_user.id,
@@ -102,7 +101,7 @@ def get_followers(
     offset: int = Query(0, ge=0),
     limit: int = Query(10, ge=1),
     db = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(AuthService.getCurrentUser)
 ):
     """Lấy danh sách followers của user"""
     followers = db.query(Follow).filter(
@@ -130,7 +129,7 @@ def get_following(
     offset: int = Query(0, ge=0),
     limit: int = Query(10, ge=1),
     db = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(AuthService.getCurrentUser)
 ):
     """Lấy danh sách following của user"""
     follows = db.query(Follow).filter(

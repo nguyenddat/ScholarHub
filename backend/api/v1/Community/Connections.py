@@ -3,16 +3,15 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from database.init_db import get_db
-from models.User import User
-from models.Follow import Follow
-from services.Auth.auth import get_current_user
+from models import User, Follow
+from services import AuthService
 
 router = APIRouter()
 
 @router.get("/connections")
 def get_connection_suggestions(
     db: Session = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     try:
         # Lấy danh sách user IDs mà current user đã follow
