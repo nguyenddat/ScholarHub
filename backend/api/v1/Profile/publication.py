@@ -8,7 +8,7 @@ from models import Publication
 from schemas.Profile.Publication import *
 from repositories import PublicationRepository
 from services import AuthService, PublicationService
-from services.ProfileManager import profile_manager
+from services import profile_manager
 
 router = APIRouter()
 

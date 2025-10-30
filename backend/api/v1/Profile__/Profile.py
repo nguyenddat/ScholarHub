@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from database.init_db import get_db
 from schemas.Profile.Personal import *
 from services.Auth.auth import get_current_user
-from services.ProfileManager import profile_manager
+from services import profile_manager
 from models.Profile import Profile
 from models.Education import Education
 from models.Experience import Experience

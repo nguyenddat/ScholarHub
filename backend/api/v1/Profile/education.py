@@ -1,6 +1,6 @@
 from typing import *
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from database.init_db import get_db
@@ -8,7 +8,7 @@ from models import Education
 from schemas.Profile.Education import *
 from repositories import EducationRepository
 from services import AuthService, EducationService
-from services.ProfileManager import profile_manager
+from services import profile_manager
 
 router = APIRouter()
 

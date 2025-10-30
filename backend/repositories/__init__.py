@@ -1,6 +1,9 @@
-from .user_repo import UserRepository
-from .profile_repo import ProfileRepository
-from .achievement_repo import AchievementRepository
-from .education_repo import EducationRepository
-from .experiment_repo import ExperienceRepository
-from .publication_repo import PublicationRepository
+import pkgutil
+import importlib
+
+package_name = __name__
+# Dynamically import all repository modules in the current package
+for _, module_name, is_pkg in pkgutil.iter_modules(__path__):
+    if not is_pkg:
+        full_module_name = f"{package_name}.{module_name}"
+        importlib.import_module(full_module_name)

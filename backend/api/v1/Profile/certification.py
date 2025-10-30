@@ -6,8 +6,7 @@ from fastapi.responses import JSONResponse
 from database.init_db import get_db
 from models import Certification
 from schemas.Profile.Certification import *
-from services import AuthService, CertificationService
-from services.ProfileManager import profile_manager
+from services import AuthService, CertificationService, profile_manager
 
 router = APIRouter()
 

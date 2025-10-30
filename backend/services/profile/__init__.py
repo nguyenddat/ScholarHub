@@ -1,5 +1,8 @@
-from .achievement_service import AchievementService
-from .certification_service import CertificationService
-from .education_service import EducationService
-from .experience_service import ExperienceService
-from .publication_service import PublicationService
+import pkgutil
+import importlib
+
+package_name = __name__
+for _, module_name, is_pkg in pkgutil.iter_modules(__path__):
+    if not is_pkg:
+        full_module_name = f"{package_name}.{module_name}"
+        importlib.import_module(full_module_name)

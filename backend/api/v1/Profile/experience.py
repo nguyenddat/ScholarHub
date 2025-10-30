@@ -7,8 +7,7 @@ from database.init_db import get_db
 from models import Experience
 from schemas.Profile.Experience import *
 from repositories import ExperienceRepository
-from services import AuthService, ExperienceService
-from services.ProfileManager import profile_manager
+from services import AuthService, ExperienceService, profile_manager
 
 router = APIRouter()
 

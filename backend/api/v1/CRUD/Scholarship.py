@@ -5,11 +5,11 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from database.init_db import get_db
-from models.Scholarship import Scholarship
+from models import Scholarship
 from schemas.CRUD.Scholarship import PostScholarshipRequest
 from helpers.CriteriaWeights import cal_weights
-from services.Auth.auth import get_current_user
-from services.RetrieverManager import retriever_manager
+from services import get_current_user
+from backend.services.retriever_manager import retriever_manager
 from services.CRUD.Scholarship import scholarship_to_description
 from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
 from ai.Recommendation.ScholarshipRecommend import recommend_scholarship

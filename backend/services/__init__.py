@@ -1,6 +1,8 @@
-from .ProfileManager import profile_manager
-from .user_service import UserService
-from .auth_service import AuthService
+import importlib
+import pkgutil
 
-from .profile import AchievementService, CertificationService, EducationService, \
-    ExperienceService, PublicationService
+package = __name__
+
+for module_info in pkgutil.walk_packages(__path__, prefix=f"{package}."):
+    if not module_info.ispkg:
+        importlib.import_module(module_info.name)

@@ -8,7 +8,7 @@ from database.init_db import get_db
 from models.Document import Document
 from schemas.Profile.Document import *
 from services.Auth.auth import get_current_user
-from services.ProfileManager import profile_manager
+from services import profile_manager
 
 router = APIRouter()
 

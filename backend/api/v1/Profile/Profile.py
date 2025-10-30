@@ -1,127 +1,57 @@
+import os
+import uuid
 from typing import *
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 
+from core import settings
 from database.init_db import get_db
-from models import Certification
+from models import User 
 from schemas.Profile.Certification import *
-from services import AuthService, CertificationService
-from services.ProfileManager import profile_manager
-
+from services import AuthService
 
 router = APIRouter()
 
-@router.delete("/certification")
-def delete_certification(
-    payload: CertificationDeleteRequest,
+@router.put("/profile-media/{media_type}")
+def update_profile_media(
+    media_type: str,
+    file: Optional[UploadFile] = File(None),
     db = Depends(get_db),
-    user = Depends(AuthService.getCurrentUser)
+    current_user: User = Depends(AuthService.getCurrentUser),
 ):
-    try:
-        CertificationService.deleteById(payload.id, db)
-        profile_manager.record_request(user.id)
-        db.commit()
+    if media_type not in ["avatar", "banner"]:
+        raise HTTPException(status_code=400, detail="Invalid media type. Use 'avatar' or 'banner'.")
     
-    except:
-        pass
-        
-        
+    if not file:
+        raise HTTPException(status_code=400, detail="No file uploaded.")
 
-@router.put("/certification")
-def update_certification(
-    payload: CertificationUpdateRequest,
-    db = Depends(get_db),
-    user = Depends(AuthService.getCurrentUser),
-):
+    # Tạo thư mục lưu trữ
+    save_dir = os.path.join(settings.STATIC_DIR, "profile_media", str(current_user.id), media_type)
+    os.makedirs(save_dir, exist_ok=True)
+
+    # Đổi tên file để tránh trùng
+    ext = os.path.splitext(file.filename)[-1]
+    filename = f"{uuid.uuid4().hex}{ext}"
+    file_path = os.path.join(save_dir, filename)
     try:
-        certification = Certification.update(
-            db=db,
-            user=user,
-            certification=payload
-        )
+        with open(file_path, "wb") as f:
+            f.write(file.file.read())
 
-    except Exception as err:
-        print(err)
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=str(err)
-        )
+        static_return = os.path.join("uploads", "profile_media", str(current_user.id), media_type, filename)
 
-    profile_manager.record_request(user.id)
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={
-            "success": True,
-            "message": "Cập nhật profile certification thành công",
-            "payload": {
-                "certification": certification
-            }
-        }
-    )
+        if media_type == "avatar":
+            current_user.avatar = static_return
+        else:
+            current_user.banner = static_return
 
-@router.get("/certification")
-def get_certification(
-    db=Depends(get_db),
-    user=Depends(AuthService.getCurrentUser)
-):
-    try:
-        certification = Certification.get(
-            db=db,
-            user=user,
-            params={}
-        )
+        db.commit()
+        db.refresh(current_user)
 
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={
-                "success": True,
-                "message": "Lấy profile certification thành công",
-                "payload": {
-                    "certification": certification
-                }
-            }
-        )
+        return JSONResponse({"success": True, "file_path": static_return}, 200)
 
-    except Exception as err:
-        print(err)
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={
-                "success": False,
-                "message": "Lấy profile certification thất bại",
-                "payload": None
-            }
-        )
-
-@router.post("/certification")
-def create_certification(
-    payload: CertificationCreateRequest,
-    db=Depends(get_db),
-    user=Depends(AuthService.getCurrentUser)
-):
-    try:
-        certification = Certification.create(
-            db=db,
-            user=user,
-            certification=payload
-        )
-
-    except Exception as err:
-        print(err)
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=str(err)
-        )
-
-    profile_manager.record_request(user.id)
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={
-            "success": True,
-            "message": "Tạo profile certification thành công",
-            "payload": {
-                "certification": certification
-            },
-        }
-    )
+    except Exception as e:
+        db.rollback()
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
