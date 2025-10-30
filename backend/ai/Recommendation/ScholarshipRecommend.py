@@ -2,8 +2,8 @@ import json
 
 import numpy as np
 
-from models.Scholarship import Scholarship
-from models.Profile import Profile
+from models import Scholarship
+from models import Profile
 from ai.Recommendation.services.ScholarshipLoader import load_scholarships, criterias
 
 def recommend_scholarship(db, user):

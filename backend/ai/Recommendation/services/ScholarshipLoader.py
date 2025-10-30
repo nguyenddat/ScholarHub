@@ -3,7 +3,7 @@ import json
 import numpy as np
 
 from database.init_db import get_db
-from models.Scholarship import Scholarship
+from models import Scholarship
 
 criterias = ["education", "experience", "research", "certification", "achievement"]
 def load_scholarships(db):
