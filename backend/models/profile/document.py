@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, Any, List
 
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Session
 

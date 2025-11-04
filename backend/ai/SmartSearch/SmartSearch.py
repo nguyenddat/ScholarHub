@@ -1,4 +1,4 @@
-from models.Scholarship import Scholarship
+from models import Scholarship
 from ai.core.chain import get_chat_completion
 from ai.SmartSearch.v1.Retriever import retriever
 from helpers.DictConvert import to_dict

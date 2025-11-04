@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, UniqueConstraint, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, CITEXT
 

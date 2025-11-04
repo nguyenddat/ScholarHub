@@ -1,8 +1,13 @@
-import importlib
-import pkgutil
+from .auth_service import AuthService
+from .user_service import UserService
+from .profile_manager_ import profile_manager
+from .retriever_manager_ import retriever_manager
 
-package = __name__
-
-for module_info in pkgutil.walk_packages(__path__, prefix=f"{package}."):
-    if not module_info.ispkg:
-        importlib.import_module(module_info.name)
+from services.profile.achievement_service import AchievementService
+from services.profile.certification_service import CertificationService
+from services.profile.document_service import DocumentService
+from services.profile.education_service import EducationService
+from services.profile.experience_service import ExperienceService
+from services.profile.profile_service import ProfileService
+from services.profile.publication_service import PublicationService
+from services.profile.reference_service import ReferenceService

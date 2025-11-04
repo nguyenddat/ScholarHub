@@ -1,7 +1,7 @@
 from typing import *
 from datetime import datetime
 
-from sqlalchemy import *
+from sqlalchemy import Column, Text, DateTime, ForeignKey, Float, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 

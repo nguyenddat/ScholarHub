@@ -1,7 +1,7 @@
 from dateutil.parser import parse
 from datetime import date, datetime
 
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, Text, Date, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 
@@ -9,14 +9,13 @@ from helpers.Enums import *
 from helpers.DictConvert import to_dict
 from models.BaseClass import BareBaseModel, Base
 from schemas.Profile.Personal import *
-from models import (
-    Education,
-    Achievement,
-    Experience,
-    Publication,
-    Reference,
-    User
-)
+
+from models.user.user import User
+from models.profile.education import Education
+from models.profile.experience import Experience
+from models.profile.publication import Publication
+from models.profile.achievement import Achievement
+from models.profile.reference import Reference
 from ai.core.chain import get_chat_completion
 
 default_criteria = {

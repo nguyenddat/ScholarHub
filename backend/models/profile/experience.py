@@ -1,4 +1,4 @@
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, Text, Date, Boolean, ForeignKey
 
 from helpers.Enums import *
 from models.BaseClass import BareBaseModel, Base

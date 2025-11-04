@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 from models import User
 from core import settings
 from database.init_db import get_db
-from services import UserService
+from services.user_service import UserService
 from helpers.Enums import UserRoleEnum
 from helpers.security import verifyPassword, createAccessToken, createRefreshToken
 from schemas.Auth.auth import RefreshToken

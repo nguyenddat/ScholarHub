@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import *
+from sqlalchemy import Column, Text, DateTime, Enum
 from sqlalchemy.orm import relationship
 
 from helpers.Enums import *

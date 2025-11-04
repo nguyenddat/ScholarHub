@@ -1,5 +1,4 @@
-from sqlalchemy import *
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Integer, Text, ForeignKey, Numeric
 
 from helpers.Enums import *
 from models.BaseClass import BareBaseModel

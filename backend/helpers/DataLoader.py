@@ -4,7 +4,7 @@ from langchain_community.document_loaders.text import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from core.config import settings
-from models.Scholarship import Scholarship
+from models import Scholarship
 from ai.core.chain import get_chat_completion
 
 class DataLoader:

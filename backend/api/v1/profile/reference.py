@@ -7,14 +7,14 @@ from database.init_db import get_db
 from models import Reference
 from schemas.Profile.Reference import *
 from repositories import ReferenceRepository
-from services import get_current_user, ReferenceService, profile_manager
+from services import AuthService, ReferenceService, profile_manager
 
 router = APIRouter()
 
 @router.get("/reference")
 def get_references(
     db=Depends(get_db),
-    user=Depends(get_current_user)
+    user=Depends(AuthService.getCurrentUser)
 ):
     try:
         references = ReferenceService.getByUserId(user.id, db)
@@ -27,7 +27,7 @@ def get_references(
 def create_reference(
     payload: ReferenceCreateRequest,
     db=Depends(get_db),
-    user=Depends(get_current_user)
+    user=Depends(AuthService.getCurrentUser)
 ):
     try:
         reference = Reference(user_id=user.id, **payload.dict())
@@ -47,7 +47,7 @@ def create_reference(
 def update_reference(
     payload: ReferenceUpdateRequest,
     db=Depends(get_db),
-    user=Depends(get_current_user)
+    user=Depends(AuthService.getCurrentUser)
 ):
     try:
         reference = ReferenceService.update(payload.id, payload.dict(exclude={"id"}), db)    
@@ -66,7 +66,7 @@ def update_reference(
 def delete_reference(
     payload: ReferenceDeleteRequest,
     db=Depends(get_db),
-    user=Depends(get_current_user)
+    user=Depends(AuthService.getCurrentUser)
 ):
     try:
         ReferenceService.deleteById(payload.id, db)

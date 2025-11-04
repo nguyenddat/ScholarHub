@@ -1,4 +1,4 @@
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, Text, Date, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
 from helpers.DictConvert import to_dict

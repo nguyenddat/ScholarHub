@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Column, Text, Date, ForeignKey
+from sqlalchemy import Column, Text, Date, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 
 from helpers.DictConvert import to_dict

@@ -10,13 +10,12 @@ services:
       - "8001:5432"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 5s
       timeout: 5s
       retries: 2
     networks:
       - fast_api
-
 
   backend:
     container_name: scholarhub_backend
@@ -33,10 +32,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    command: "uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     networks:
       - fast_api
-  
+
 networks:
   fast_api:
     driver: bridge

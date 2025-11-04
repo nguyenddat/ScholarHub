@@ -4,7 +4,7 @@ from models import Profile
 
 from repositories import ProfileRepository
 
-class ExperienceService:
+class ProfileService:
     @staticmethod
     def getByUserId(id: int, db: Session):
         return ProfileRepository.getByUserId(id, db)

@@ -8,8 +8,7 @@ from database.init_db import get_db
 from models import Scholarship
 from schemas.CRUD.Scholarship import PostScholarshipRequest
 from helpers.CriteriaWeights import cal_weights
-from services import get_current_user
-from services import retriever_manager
+from services import retriever_manager, AuthService
 from services.CRUD.Scholarship import scholarship_to_description
 from ai.ProfileMatching.services.ScholarshipExtract import extract_scholarship
 from ai.Recommendation.ScholarshipRecommend import recommend_scholarship
@@ -19,7 +18,7 @@ router = APIRouter()
 @router.get("/scholarships")
 def get_scholarship(
     db = Depends(get_db),
-    user = Depends(get_current_user),
+    user = Depends(AuthService.getCurrentUser),
     suggest: bool = False,
     id: Optional[str] = None,
     limit: int = 10,
@@ -50,7 +49,7 @@ def get_scholarship(
     limit: int = 10,
     offset: int = 0,
     db = Depends(get_db),
-    user = Depends(get_current_user),
+    user = Depends(AuthService.getCurrentUser),
 ):
     payload = Scholarship.get(
         db = db, 
@@ -73,7 +72,7 @@ def get_scholarship(
 def post_scholarship(
     payload: PostScholarshipRequest,
     db = Depends(get_db),
-    user = Depends(get_current_user)
+    user = Depends(AuthService.getCurrentUser)
 ):
     posted_at = datetime.now()
     data = payload.model_dump()
