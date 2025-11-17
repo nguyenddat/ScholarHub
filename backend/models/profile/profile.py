@@ -10,14 +10,6 @@ from helpers.DictConvert import to_dict
 from models.BaseClass import BareBaseModel, Base
 from schemas.Profile.Personal import *
 
-from models.user.user import User
-from models.profile.education import Education
-from models.profile.experience import Experience
-from models.profile.publication import Publication
-from models.profile.achievement import Achievement
-from models.profile.reference import Reference
-from ai.core.chain import get_chat_completion
-
 default_criteria = {
     "education": {
         "score": [0, 0, 0, 0, 0],
@@ -64,7 +56,7 @@ class Profile(Base):
 
     @staticmethod
     def get(db, user):
-        profile = db.query(Profile).filter(Profile.user_id == user.id).first()
+        profile = db.query(Profile).filter(Profile.user_id == user["id"]).first()
         if not profile:
             return {
                 "first_name": None,
@@ -156,102 +148,3 @@ class Profile(Base):
         
         except Exception:
             return False
-
-    @staticmethod
-    def update_criteria(db, user_id):
-        user = db.query(User).filter(User.id == user_id).first()
-        profile_record = db.query(Profile).filter(Profile.user_id == user.id).first()
-        if not profile_record:
-            print(f"Không tìm thấy bản ghi cho profile của người dùng: {user_id}")
-            return False
-
-        educations = Education.Education.get(db, user)
-        experiences = Experience.Experience.get(db, user)
-        publications = Publication.Publication.get(db, user)
-        references = Reference.Reference.get(db, user)
-        achievements = Achievement.Achievement.get(db, user)
-        
-        # Ghép dữ liệu thành một đoạn văn CV mô phỏng
-        resume_text = ""
-
-        if educations:
-            resume_text += "## Education\n"
-            for edu in educations:
-                degree_type = edu.get('degree_type', '')
-                major = edu.get('major', '')
-                institution = edu.get('institution', '')
-                graduation_year = edu.get('graduation_year', '')
-                gpa = edu.get('gpa', '')
-                resume_text += f"- {degree_type} in {major} at {institution}"
-                if graduation_year or gpa:
-                    resume_text += f", Graduation: {graduation_year}" if graduation_year else ""
-                    resume_text += f", GPA: {gpa}" if gpa else ""
-                resume_text += "\n"
-
-        if experiences:
-            resume_text += "\n## Experience\n"
-            for exp in experiences:
-                title = exp.get('title', '')
-                organization = exp.get('organization', '')
-                start_date = exp.get('start_date', '')
-                end_date = exp.get('end_date', 'Present')
-                location = exp.get('location', '')
-                description = exp.get('description', '')
-
-                resume_text += f"- {title} at {organization} ({start_date} - {end_date})\n"
-                if location:
-                    resume_text += f"  Location: {location}\n"
-                if description:
-                    resume_text += f"  Description: {description}\n"
-
-        if publications:
-            resume_text += "\n## Publications\n"
-            for pub in publications:
-                title = pub.get('title', '')
-                pub_type = pub.get('type', '')
-                venue_name = pub.get('venue_name', '')
-                publish_date = pub.get('publish_date', '')
-                resume_text += f"- {title} ({pub_type}), {venue_name}, {publish_date}\n"
-
-        if achievements:
-            resume_text += "\n## Achievements\n"
-            for ach in achievements:
-                title = ach.get('title', '')
-                issuer = ach.get('issuer', '')
-                award_date = ach.get('award_date', '')
-                description = ach.get('description', '')
-
-                resume_text += f"- {title} awarded by {issuer}"
-                if award_date:
-                    resume_text += f" on {award_date}"
-                resume_text += "\n"
-                if description:
-                    resume_text += f"  Description: {description}\n"
-
-        if references:
-            resume_text += "\n## References\n"
-            for ref in references:
-                name = ref.get('name', '')
-                job_title = ref.get('job_title', '')
-                organization = ref.get('organization', '')
-                relationship = ref.get('relationship', '')
-                email = ref.get('email', '')
-
-                resume_text += f"- {name} ({job_title} at {organization}), {relationship}"
-                if email:
-                    resume_text += f", Email: {email}"
-                resume_text += "\n"
-                
-        # Gửi đến LLM để đánh giá
-        criteria_result = get_chat_completion(
-            task="resume_extract",
-            params={
-                "resume": resume_text,
-                "question": "Evaluate the information from the CV against these criteria."
-            }
-        )
-
-        profile_record.criteria = criteria_result["criteria"]
-        db.commit()
-        db.refresh(profile_record)
-        return True

@@ -17,7 +17,7 @@ def get_documents(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        documents = DocumentService.get(user.id, db)
+        documents = DocumentService.getByUserId(user["id"], db)
         return JSONResponse({"success": True, "message": "Lấy danh sách tài liệu thành công", 
                              "payload": [DocumentRepository.toDict(document) for document in documents]}, 200)
 
@@ -31,9 +31,9 @@ def create_document(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        document = Document(user_id=user.id, **payload.dict())
+        document = Document(user_id=user["id"], **payload.dict())
         document = DocumentService.create(document, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(document)
@@ -52,7 +52,7 @@ def update_document(
 ):
     try:
         document = DocumentService.update(payload.id, payload.dict(exclude={"id"}), db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(document)
@@ -71,7 +71,7 @@ def delete_document(
 ):
     try:
         DocumentService.delete(payload.id, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         return JSONResponse({"success": True, "message": "Xóa tài liệu thành công"}, 200)

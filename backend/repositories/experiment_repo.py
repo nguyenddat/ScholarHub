@@ -6,7 +6,7 @@ class ExperienceRepository:
     @staticmethod
     def getByUserId(id: int, db: Session):
         experiences = db.query(Experience).filter(Experience.user_id == id).all()
-        return [ExperienceRepository.toDict(experience) for experience in experiences]
+        return experiences
     
     
     @staticmethod
@@ -45,8 +45,8 @@ class ExperienceRepository:
             "title": experience.title,
             "organization": experience.organization,
             "location": experience.location,
-            "start_date": experience.start_date,
-            "end_date": experience.end_date,
+            "start_date": str(experience.start_date),
+            "end_date": str(experience.end_date),
             "is_ongoing": experience.is_ongoing,
             "description": experience.description
         }

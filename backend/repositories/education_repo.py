@@ -6,7 +6,7 @@ class EducationRepository:
     @staticmethod
     def getByUserId(id: int, db: Session):
         educations = db.query(Education).filter(Education.user_id == id).all()
-        return [EducationRepository.toDict(education) for education in educations]
+        return educations
     
     
     @staticmethod

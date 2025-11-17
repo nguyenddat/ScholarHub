@@ -1,11 +1,12 @@
 import time
 import threading
 
-from database.init_db import get_db
 from models import Profile
+from database.init_db import get_db
+from services.profile.profile_service import ProfileService
 
 class ProfileManager:
-    def __init__(self, time_limit: int = 3600):
+    def __init__(self, time_limit: int = 60):
         self.profile_last_time = {}  # {user_id: last_request_time}
         self.time_limit = time_limit
         self.lock = threading.Lock()
@@ -15,7 +16,7 @@ class ProfileManager:
 
     def _monitor(self):
         while True:
-            time.sleep(30)
+            time.sleep(10)
             now = time.time()
 
             with self.lock:
@@ -24,11 +25,8 @@ class ProfileManager:
 
             for user_id in expired_users:
                 print(f"[Profile Monitor] Re-ingesting profile for user: {user_id}")
-                try:
-                    self.re_ingest(user_id)
-                    print(f"[Profile Monitor] Done re-ingesting profile for user: {user_id}")
-                except Exception as e:
-                    print(f"[Profile Monitor] Failed to re-ingest user {user_id}: {e}")
+                self.re_ingest(user_id)
+                print(f"[Profile Monitor] Done re-ingesting profile for user: {user_id}")
 
     def record_request(self, user_id):
         with self.lock:
@@ -41,7 +39,7 @@ class ProfileManager:
 
         try:
             db = next(get_db())
-            Profile.update_criteria(db, user_id)
+            success = ProfileService.updateCriteria(user_id, db)
         finally:
             db.close()
 
@@ -50,8 +48,7 @@ class ProfileManager:
             self.profile_last_time.pop(user_id, None)
 
     def re_evaluate(self, db, user_id):
-        Profile.update_criteria(db, user_id)
-
+        success = ProfileService.updateCriteria(user_id, db)
         with self.lock:
             self.profile_last_time.pop(user_id, None)
 

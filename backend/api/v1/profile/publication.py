@@ -18,7 +18,7 @@ def get_publication(
     user=Depends(AuthService.getCurrentUser)
 ):
     try:
-        publications = PublicationService.getByUserId(user.id, db)
+        publications = PublicationService.getByUserId(user["id"], db)
         return JSONResponse({"success": True, "message": "Lấy publication thành công", 
                              "payload": [PublicationRepository.toDict(publication) for publication in publications]}, 200)
     except Exception as e:
@@ -31,9 +31,9 @@ def create_publication(
     user=Depends(AuthService.getCurrentUser)
 ):
     try:
-        publication = Publication(user_id=user.id, **payload.dict())
+        publication = Publication(user_id=user["id"], **payload.dict())
         publication = PublicationService.create(publication, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(publication)
@@ -53,7 +53,7 @@ def update_publication(
 ):
     try:
         publication = PublicationService.update(payload.id, payload.dict(exclude={"id"}), db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(publication)
@@ -72,8 +72,8 @@ def delete_publication(
     user=Depends(AuthService.getCurrentUser)
 ):
     try:
-        PublicationService.delete(payload.id, db)
-        profile_manager.record_request(user.id)
+        PublicationService.deleteById(payload.id, db)
+        profile_manager.record_request(user["id"])
         db.commit()
         
         return JSONResponse({"success": True, "message": "Xóa publication thành công"}, 200)

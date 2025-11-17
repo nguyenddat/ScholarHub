@@ -21,16 +21,16 @@ with open(os.path.join(settings.BASE_DIR, "artifacts", "WebScrape", "data.json")
 #     print("Response:", response.json())
 
 login_payload = {
-    "username": "ript@gmail.com",
-    "password": "Ript!@#123"
+    "username": "dinhdat201fb@gmail.com",
+    "password": "Dinhdat201fb@gma"
 }
 
 
 login_url = "https://scholarhub-be.ript.vn/api/v1/auth/login"
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
 response = requests.post(login_url, data=login_payload, headers=headers)
-token = response.json()["payload"]["access_token"]
-post_url = "http://localhost:8000/api/v1/post-scholarship"
+token = response.json()["access_token"]
+post_url = "https://scholarhub-be.ript.vn/api/v1/scholarships"
 post_headers = {
     "Authorization": f"Bearer {token}",
     "Content-Type": "application/json"

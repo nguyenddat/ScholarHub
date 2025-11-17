@@ -17,7 +17,7 @@ def get_references(
     user=Depends(AuthService.getCurrentUser)
 ):
     try:
-        references = ReferenceService.getByUserId(user.id, db)
+        references = ReferenceService.getByUserId(user["id"], db)
         return JSONResponse({"success": True, "message": "Lấy reference thành công",
                              "payload": [ReferenceRepository.toDict(ref) for ref in references]}, 200)
     except Exception as e:
@@ -30,9 +30,9 @@ def create_reference(
     user=Depends(AuthService.getCurrentUser)
 ):
     try:
-        reference = Reference(user_id=user.id, **payload.dict())
+        reference = Reference(user_id=user["id"], **payload.dict())
         reference = ReferenceService.create(reference, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
 
         db.commit()
         db.refresh(reference)
@@ -51,7 +51,7 @@ def update_reference(
 ):
     try:
         reference = ReferenceService.update(payload.id, payload.dict(exclude={"id"}), db)    
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(reference)
@@ -70,7 +70,7 @@ def delete_reference(
 ):
     try:
         ReferenceService.deleteById(payload.id, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         db.commit()
 
         return JSONResponse({"success": True, "message": "Xóa reference thành công"}, 200)

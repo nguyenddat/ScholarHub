@@ -19,7 +19,7 @@ class Achievement(BareBaseModel):
     @staticmethod
     def create(db, user, achievement: AchievementCreateRequest):
         new_ach = Achievement(
-            user_id=user.id,
+            user_id=user["id"],
             title=achievement.title,
             issuer=achievement.issuer,
             award_date=achievement.award_date,

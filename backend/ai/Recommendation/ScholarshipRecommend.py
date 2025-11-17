@@ -9,7 +9,7 @@ from ai.Recommendation.services.ScholarshipLoader import load_scholarships, crit
 def recommend_scholarship(db, user):
     scholarship_criterias, criteria_weights, scholarships = load_scholarships(db)
 
-    profile = db.query(Profile).filter(Profile.user_id == user.id).first()
+    profile = db.query(Profile).filter(Profile.user_id == user["id"]).first()
     profile_criteria = profile.criteria
 
     profile_criteria_np = []

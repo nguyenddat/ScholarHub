@@ -17,9 +17,9 @@ def get_experience(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        experiences = ExperienceService.getByUserId(user.id, db)
+        experiences = ExperienceService.getByUserId(user["id"], db)
         return JSONResponse({"success": True, "message": "Lấy profile experience thành công", 
-                             "payload": ExperienceRepository.toDict(experiences)}, 200)
+                                "payload": [ExperienceRepository.toDict(experience) for experience in experiences]}, 200)
     
     except Exception as err:
         raise HTTPException(status_code=500, detail="Lấy profile experience thất bại")
@@ -32,15 +32,15 @@ def create_experience(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        experience = Experience(user_id=user.id, **payload.dict())
+        experience = Experience(user_id=user["id"], **payload.dict())
         experience = ExperienceService.create(experience, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(experience)
         
         return JSONResponse({"success": True, "message": "Tạo profile experience thành công", 
-                             "payload": ExperienceRepository.toDict(experience)}, 200)
+                                "payload": ExperienceRepository.toDict(experience)}, 200)
     
     except:
         raise HTTPException(status_code=500, detail="Tạo profile experience thất bại")
@@ -52,13 +52,13 @@ def update_experience(
     user = Depends(AuthService.getCurrentUser),
 ):
     try:
-        experience = ExperienceService.update(user.id, payload.dict(), db)
-        profile_manager.record_request(user.id)
+        experience = ExperienceService.update(payload.id, payload.dict(), db)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(experience)
         return JSONResponse({"success": True, "message": "Cập nhật profile experience thành công", 
-                             "payload": ExperienceRepository.toDict(experience)}, 200)
+                                "payload": ExperienceRepository.toDict(experience)}, 200)
     
     except:
         raise HTTPException(status_code=500, detail="Cập nhật profile experience thất bại")
@@ -70,8 +70,8 @@ def delete_experience(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        ExperienceService.delete(user.id, payload.id, db)
-        profile_manager.record_request(user.id)
+        ExperienceService.deleteById(payload.id, db)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         return JSONResponse({"success": True, "message": "Xoá profile experience thành công"}, 200)

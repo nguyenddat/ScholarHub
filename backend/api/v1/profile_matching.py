@@ -5,10 +5,10 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter, status, UploadFile, Form, File, Depends
 
 from database.init_db import get_db
-from schemas.CRUD.Scholarship import PostScholarshipRequest
-from models import Profile, Education, Experience, Achievement, Publication, Scholarship
+from models import Scholarship
 from helpers.DictConvert import convert_candidate_to_text, convert_scholarship_to_text
-from services import AuthService
+from repositories import ProfileRepository, EducationRepository, ExperienceRepository, AchievementRepository, PublicationRepository
+from services import AuthService, ProfileService, EducationService, ExperienceService, AchievementService, PublicationService
 from ai.core.chain import get_chat_completion
 from ai.ProfileMatching.ProfileMatching import resume_matching
 
@@ -46,12 +46,19 @@ def profile_matching(
     user = Depends(AuthService.getCurrentUser)
 ):
     scholarship = db.query(Scholarship).filter(Scholarship.id == id).first()
-    profile = Profile.get(db, user)
-    educations = Education.get(db, user)
-    experiences = Experience.get(db, user)
-    achievements = Achievement.get(db, user)
-    publications = Publication.get(db, user)
+    
+    profile = ProfileService.getByUserId(user["id"], db)
+    educations = EducationService.getByUserId(user["id"], db)
+    experiences = ExperienceService.getByUserId(user["id"], db)
+    achievements = AchievementService.getByUserId(user["id"], db)
+    publications = PublicationService.getByUserId(user["id"], db)
 
+    profile = ProfileRepository.toDict(profile)
+    educations = [EducationRepository.toDict(a) for a in educations]
+    experiences = [ExperienceRepository.toDict(a) for a in experiences]
+    publications = [PublicationRepository.toDict(a) for a in publications]
+    achievements = [AchievementRepository.toDict(a) for a in achievements]
+    
     profile = convert_candidate_to_text(profile, educations, experiences, achievements, publications)
     scholarship = convert_scholarship_to_text(scholarship)
 

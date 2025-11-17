@@ -19,7 +19,7 @@ class Publication(BareBaseModel):
     def create(db, user, publication: PublicationCreateRequest):
         try:
             new_pub = Publication(
-                user_id=user.id,
+                user_id=user["id"],
                 title=publication.title,
                 type=publication.type,
                 venue_name=publication.venue_name,

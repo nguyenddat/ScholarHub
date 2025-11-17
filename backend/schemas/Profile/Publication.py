@@ -3,7 +3,7 @@ from datetime import date
 from pydantic import BaseModel, Field
 
 class PublicationDeleteRequest(BaseModel):
-    id: str
+    id: int
 
 class PublicationCreateRequest(BaseModel):
     title: str
@@ -13,7 +13,7 @@ class PublicationCreateRequest(BaseModel):
     url: Optional[str] = None  # URL của publication, nếu có
 
 class PublicationUpdateRequest(BaseModel):
-    id: str  # ID của publication cần cập nhật
+    id: int  # ID của publication cần cập nhật
     title: Optional[str] = None  # Tiêu đề có thể cập nhật
     type: Optional[str] = Field(default='journal')  # Loại publication, mặc định là 'journal'
     venue_name: Optional[str] = None  # Tên nơi công bố có thể cập nhật

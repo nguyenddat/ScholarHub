@@ -18,9 +18,9 @@ def get_education(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        educations = EducationService.getByUserId(user.id, db)
+        educations = EducationService.getByUserId(user["id"], db)
         return JSONResponse({"success": True, "message": "skibidi", 
-                             "payload": [EducationRepository.toDict(education) for education in educations]}, 200)
+                                "payload": [EducationRepository.toDict(education) for education in educations]}, 200)
 
     except Exception as err:
         print(str(err))
@@ -34,9 +34,9 @@ def create_education(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        education = Education(user_id=user.id, **payload.dict())
+        education = Education(user_id=user["id"], **payload.dict())
         education = EducationService.create(education, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(education)
@@ -56,7 +56,7 @@ def update_education(
 ):  
     try:
         education = EducationService.update(payload.id, payload.dict(exclude={"id"}), db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         db.refresh(education)
@@ -76,8 +76,8 @@ def delete_education(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        EducationService.delete(payload.id, db)
-        profile_manager.record_request(user.id)
+        EducationService.deleteById(payload.id, db)
+        profile_manager.record_request(user["id"])
         
         db.commit()
         return JSONResponse({"success": True, "message": "Xóa profile education thành công"}, 200)

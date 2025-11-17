@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class CertificationDeleteRequest(BaseModel):
-    id: str
+    id: int
 
 
 class CertificationCreateRequest(BaseModel):
@@ -18,7 +18,7 @@ class CertificationCreateRequest(BaseModel):
     url: Optional[str] = None
 
 class CertificationUpdateRequest(BaseModel):
-    id: str
+    id: int
     name: str
     type: str
     provider: str

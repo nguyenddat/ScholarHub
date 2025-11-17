@@ -1,4 +1,7 @@
 import os
+os.environ["LANGCHAIN_TRACING_V2"] = "false"
+os.environ["LANGCHAIN_ENDPOINT"] = ""
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -33,24 +36,24 @@ def get_application() -> FastAPI:
     
     # Routers
     application.include_router(auth.router, prefix = "/api/v1/auth", tags = ["Auth"])    
-    application.include_router(scholarship.router, prefix = "/api/v1/scholarship", tags = ["Scholarship"])
+    application.include_router(scholarship.router, prefix = "/api/v1/scholarships", tags = ["Scholarship"])
     
-    application.include_router(profile.router, prefix = "/api/v1/profile", tags = ["Profile"])
-    application.include_router(education.router, prefix = "/api/v1/education", tags = ["Profile"])
-    application.include_router(experience.router, prefix = "/api/v1/experience", tags = ["Profile"])
-    application.include_router(achievement.router, prefix = "/api/v1/achievement", tags = ["Profile"])
-    application.include_router(certification.router, prefix = "/api/v1/certification", tags = ["Profile"])
-    application.include_router(publication.router, prefix = "/api/v1/publication", tags = ["Profile"])
-    application.include_router(reference.router, prefix = "/api/v1/reference", tags = ["Profile"])
-    application.include_router(document.router, prefix = "/api/v1/document", tags = ["Profile"])
+    application.include_router(profile.router, prefix = "/api/v1/user", tags = ["Profile"])
+    application.include_router(education.router, prefix = "/api/v1/user", tags = ["Profile"])
+    application.include_router(experience.router, prefix = "/api/v1/user", tags = ["Profile"])
+    application.include_router(achievement.router, prefix = "/api/v1/user", tags = ["Profile"])
+    application.include_router(certification.router, prefix = "/api/v1/user", tags = ["Profile"])
+    application.include_router(publication.router, prefix = "/api/v1/user", tags = ["Profile"])
+    application.include_router(reference.router, prefix = "/api/v1/user", tags = ["Profile"])
+    application.include_router(document.router, prefix = "/api/v1/user", tags = ["Profile"])
     
-    application.include_router(Connections.router, prefix = "/api/v1/community/connections", tags = ["Community"])
-    application.include_router(Follow.router, prefix = "/api/v1/community/follow", tags = ["Community"])
-    application.include_router(Posts.router, prefix = "/api/v1/community/posts", tags = ["Community"])
-    application.include_router(Upload.router, prefix = "/api/v1/community/upload", tags = ["Community"])    
+    application.include_router(Connections.router, prefix = "/api/v1/community", tags = ["Community"])
+    application.include_router(Follow.router, prefix = "/api/v1/community", tags = ["Community"])
+    application.include_router(Posts.router, prefix = "/api/v1/community", tags = ["Community"])
+    application.include_router(Upload.router, prefix = "/api/v1/community", tags = ["Community"])    
 
-    application.include_router(smart_search.router, prefix = "/api/v1/smart-search", tags = ["AI"])
-    application.include_router(profile_matching.router, prefix = "/api/v1/profile-matching", tags = ["AI"])
+    application.include_router(smart_search.router, prefix = "/api/v1/ai", tags = ["AI"])
+    application.include_router(profile_matching.router, prefix = "/api/v1/ai", tags = ["AI"])
     return application
 
 app = get_application()

@@ -17,8 +17,10 @@ def get_achievement(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        payload = AchievementService.getByUserId(user.id, db)
-        return JSONResponse({"success": True, "payload": payload, "message": "skibidi"}, 200)
+        achievements = AchievementService.getByUserId(user["id"], db)
+        return JSONResponse({
+            "success": True, 
+            "payload": [AchievementRepository.toDict(achievement) for achievement in achievements], "message": "skibidi"}, 200)
     except:
         raise HTTPException(500, detail="Xảy ra lỗi khi lấy danh sách achievement")
 
@@ -30,9 +32,9 @@ def create_achievement(
     user = Depends(AuthService.getCurrentUser)
 ):
     try:
-        achievement = Achievement(user_id=user.id, **payload.dict())
+        achievement = Achievement(user_id=user["id"], **payload.dict())
         achievement = AchievementService.create(achievement, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         db.commit()
         db.refresh(achievement)
         return JSONResponse({"success": True, "payload": AchievementRepository.toDict(achievement), "message": "skibidi"}, 200)
@@ -49,7 +51,7 @@ def update_achievement(
 ):
     try:
         achievement = AchievementService.update(payload.id, **payload.dict(), db=db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         db.commit()
         db.refresh(achievement)
         return JSONResponse({"success": True, "payload": AchievementRepository.toDict(achievement), "message": "skibidi"}, 200)
@@ -66,7 +68,7 @@ def delete_achievement(
 ):
     try:
         AchievementService.deleteById(payload.id, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         db.commit()
         return JSONResponse({"success": True, "payload": {}, "message": "skibidi"}, 200)
     except:

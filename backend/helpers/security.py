@@ -12,6 +12,8 @@ def verifyPassword(plain_password: str, hashed_password: str) -> bool:
     global pwd_context
     return pwd_context.verify(plain_password, hashed_password)
 
+def hashPassword(password: str) -> str:
+    return pwd_context.hash(password)
 
 def createAccessToken(subject: Union[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     if expires_delta:

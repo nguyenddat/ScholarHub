@@ -6,7 +6,7 @@ class ReferenceRepository:
     @staticmethod
     def getByUserId(id: int, db: Session):
         references = db.query(Reference).filter(Reference.user_id == id).all()
-        return [ReferenceRepository.toDict(reference) for reference in references]
+        return references
     
     
     @staticmethod

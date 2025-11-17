@@ -24,11 +24,11 @@ class AuthService:
         if not user:
             raise HTTPException(status_code=401, detail="Email hoặc mật khẩu không đúng")
         
-        if not verifyPassword(password, user.password_hash):
+        if not verifyPassword(password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="Email hoặc mật khẩu không đúng")
         
-        access_token = createAccessToken(subject=user.id)
-        refresh_token = createRefreshToken(subject=user.id)        
+        access_token = createAccessToken(subject=user["id"])
+        refresh_token = createRefreshToken(subject=user["id"])        
         return {
                 "access_token": access_token,
                 "refresh_token": refresh_token,

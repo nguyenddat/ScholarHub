@@ -10,9 +10,9 @@ from database.init_db import get_db
 from helpers.DictConvert import to_dict
 from schemas.Auth.auth import UserCreate, UserResponse, Token, RefreshToken
 from schemas.Profile.Personal import PersonalCreateRequest
-
 from services import AuthService, UserService
 from repositories import ProfileRepository
+from helpers.security import hashPassword
 
 router = APIRouter()
 
@@ -23,20 +23,21 @@ async def register(
 ) -> Any:
     """Đăng ký người dùng mới"""
     try:
-        user = User(**user_data.dict())
+        user = User(email=user_data.email, password_hash = hashPassword(user_data.password))
         user = UserService.create(user, db)
         
         # Create blank profile for new user
-        profile = Profile(user_id=user.id, **PersonalCreateRequest().dict())
-        profile = ProfileRepository(profile, db)
-        
+        profile = Profile(user_id=user["id"], **PersonalCreateRequest().dict())
+        profile = ProfileRepository.create(profile, db)
+
         # Commit
         db.commit()
-        return JSONResponse({"success": True, "message": "Đăng ký thành công", "payload": to_dict(user)}, 200)
+        return JSONResponse({"success": True, "message": "Đăng ký thành công", "payload": user}, 200)
 
     except Exception as e:
         db.rollback()
-        return JSONResponse({"success": False, "message": f"Đã xảy ra lỗi: {str(e)}", "payload": {"user": None}}, 500)
+        raise HTTPException(500, detail=f"Đã xảy ra lỗi: {str(e)}")
+
 
 
 @router.post("/login")
@@ -48,7 +49,8 @@ async def login_for_access_token(
         payload = AuthService.authenticate(form_data, db)
         return payload
 
-    except:
+    except Exception as err:
+        print(err)
         raise HTTPException(500, detail="Xảy ra lỗi khi authenticate")
 
 
@@ -72,14 +74,5 @@ async def read_users_me(current_user = Depends(AuthService.getCurrentUser)) -> A
         content={
             "success": True, 
             "message": "Lấy thông tin người dùng thành công",
-            "payload": {
-                "user": {
-                    "id": str(current_user.id),
-                    "email": current_user.email,
-                    "role": current_user.role,
-                    "avatar": current_user.avatar,
-                    "banner": current_user.banner,
-                    "created_at": str(current_user.created_at)
-                }
-            }}
+            "payload": current_user}
     )

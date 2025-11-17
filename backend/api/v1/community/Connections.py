@@ -16,10 +16,10 @@ def get_connection_suggestions(
     try:
         # Lấy danh sách user IDs mà current user đã follow
         followed_user_ids = db.query(Follow.followed_id).filter(
-            Follow.follower_id == user.id
+            Follow.follower_id == user["id"]
         ).subquery()
         suggested_users = db.query(User).filter(
-            User.id != user.id,  # Không phải current user
+            User.id != user["id"],  # Không phải current user
             ~User.id.in_(followed_user_ids)  # Không trong danh sách đã follow
         ).limit(10).all()
         

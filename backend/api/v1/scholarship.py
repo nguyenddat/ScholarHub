@@ -15,7 +15,7 @@ from ai.Recommendation.ScholarshipRecommend import recommend_scholarship
 
 router = APIRouter()
 
-@router.get("/scholarships")
+@router.get("")
 def get_scholarship(
     db = Depends(get_db),
     user = Depends(AuthService.getCurrentUser),
@@ -68,7 +68,7 @@ def get_scholarship(
         )
 
 
-@router.post("/post-scholarship")
+@router.post("")
 def post_scholarship(
     payload: PostScholarshipRequest,
     db = Depends(get_db),
@@ -87,7 +87,7 @@ def post_scholarship(
     scholarship_description = scholarship_to_description(payload)
     scholarship_criteria = extract_scholarship(scholarship_description)
     
-    data["submitted_by"] = user.id
+    data["submitted_by"] = user["id"]
     data["posted_at"] = posted_at
     data["scholarship_criteria"] = scholarship_criteria
     scholarship, success = Scholarship.create(db = db, data = data)

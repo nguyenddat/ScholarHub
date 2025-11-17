@@ -6,7 +6,7 @@ class CertificationRepository:
     @staticmethod
     def getByUserId(id: int, db: Session):
         certifications = db.query(Certification).filter(Certification.user_id == id).all()
-        return [CertificationRepository.toDict(certification) for certification in certifications]
+        return certifications
     
     
     @staticmethod
@@ -44,8 +44,8 @@ class CertificationRepository:
             "name": certification.name,
             "type": certification.type,
             "provider": certification.provider,
-            "certification_date": certification.certification_date,
-            "expiry_date": certification.expiry_date,
+            "certification_date": str(certification.certification_date),
+            "expiry_date": str(certification.expiry_date),
             "image_path": certification.image_path,
             "url": certification.url,
         }

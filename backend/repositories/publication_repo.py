@@ -6,7 +6,7 @@ class PublicationRepository:
     @staticmethod
     def getByUserId(id: int, db: Session):
         publications = db.query(Publication).filter(Publication.user_id == id).all()
-        return [PublicationRepository.toDict(publication) for publication in publications]
+        return publications
     
     
     @staticmethod
@@ -44,7 +44,7 @@ class PublicationRepository:
             "title": publication.title,
             "type": publication.type,
             "venue_name": publication.venue_name,
-            "publication_date": publication.publication_date,
+            "publication_date": str(publication.publication_date),
             "url": publication.url
         }
         if user_id:

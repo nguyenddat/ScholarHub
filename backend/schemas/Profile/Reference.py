@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr
 from uuid import UUID
 
 class ReferenceDeleteRequest(BaseModel):
-    id: str
+    id: int
 
 class ReferenceCreateRequest(BaseModel):
     name: str
@@ -14,7 +14,7 @@ class ReferenceCreateRequest(BaseModel):
     email: EmailStr
 
 class ReferenceUpdateRequest(BaseModel):
-    id: str
+    id: int
     name: Optional[str] = None
     type: Optional[str] = None
     job_title: Optional[str] = None

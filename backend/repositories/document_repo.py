@@ -44,7 +44,7 @@ class DocumentRepository:
             "type": document.type,
             "file_path": document.file_path,
             "file_name": document.file_name,
-            "uploaded_at": document.uploaded_at,
+            "uploaded_at": str(document.uploaded_at),
         }
         if user_id:
             res[user_id] = document.user_id

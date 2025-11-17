@@ -18,7 +18,7 @@ def get_follows(
     current_user: User = Depends(AuthService.getCurrentUser)
 ):
     follows = db.query(Follow).filter(
-        Follow.follower_id == current_user.id
+        Follow.follower_id == current_user["id"]
     ).offset(offset).limit(limit).all()
 
     result = [
@@ -51,7 +51,7 @@ def follow(
     
     try:
         new_follow = Follow(
-            follower_id = current_user.id,
+            follower_id = current_user["id"],
             followed_id = followed_user.id
         )
         
@@ -76,7 +76,7 @@ def delete_follow(
     current_user = Depends(AuthService.getCurrentUser)
 ):
     existed_follow = db.query(Follow).filter(
-        Follow.follower_id == current_user.id,
+        Follow.follower_id == current_user["id"],
         Follow.followed_id == user_id
     ).first()
     if not existed_follow:

@@ -3,7 +3,7 @@ from datetime import date
 from pydantic import BaseModel, Field
 
 class AchievementDeleteRequest(BaseModel):
-    id: str
+    id: int
 
 class AchievementCreateRequest(BaseModel):
     title: str
@@ -12,7 +12,7 @@ class AchievementCreateRequest(BaseModel):
     description: Optional[str] = None
 
 class AchievementUpdateRequest(BaseModel):
-    id: str
+    id: int
     title: str
     issuer: str
     award_date: date

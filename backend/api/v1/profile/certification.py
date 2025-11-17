@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from database.init_db import get_db
 from models import Certification
 from schemas.Profile.Certification import *
+from repositories import CertificationRepository
 from services import AuthService, CertificationService, profile_manager
 
 router = APIRouter()
@@ -16,9 +17,11 @@ def get_certification(
     user=Depends(AuthService.getCurrentUser)
 ):
     try:
-        certifications = CertificationService.getByUserId(user.id, db)
-        return JSONResponse({"success": True, "message": "skibidi", 
-                "payload":certifications}, 200)
+        certifications = CertificationService.getByUserId(user["id"], db)
+        return JSONResponse({
+            "success": True, 
+            "message": "skibidi", 
+            "payload":[CertificationRepository.toDict(certification) for certification in certifications]}, 200)
     except:
         raise HTTPException(500, detail="Xảy ra lỗi khi lấy danh sách certification")
 
@@ -29,16 +32,16 @@ def create_certification(
     db=Depends(get_db),
     user=Depends(AuthService.getCurrentUser)
 ):
-    try:
-        certification = Certification(user_id=user.id, **payload.dict())
-        certification = CertificationService.create(certification, db)
-        profile_manager.record_request(user.id)
-        db.commit()
-        db.refresh(certification)
-        return JSONResponse({"success": True, "payload": CertificationService.toDict(certification), "message": "skibidi"}, 200)
-    except:
-        db.rollback()
-        raise HTTPException(500, detail="Xảy ra lỗi khi tạo certification")
+    # try:
+    certification = Certification(user_id=user["id"], **payload.dict())
+    certification = CertificationService.create(certification, db)
+    profile_manager.record_request(user["id"])
+    db.commit()
+    db.refresh(certification)
+    return JSONResponse({"success": True, "payload": CertificationRepository.toDict(certification), "message": "skibidi"}, 200)
+    # except:
+    #     db.rollback()
+    #     raise HTTPException(500, detail="Xảy ra lỗi khi tạo certification")
     
 
 @router.put("/certification")
@@ -49,10 +52,10 @@ def update_certification(
 ):
     try:
         certification = CertificationService.update(payload.id, **payload.dict(), db=db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         db.commit()
         db.refresh(certification)
-        return JSONResponse({"success": True, "payload": CertificationService.toDict(certification), "message": "skibidi"}, 200)
+        return JSONResponse({"success": True, "payload": CertificationRepository.toDict(certification), "message": "skibidi"}, 200)
     except:
         db.rollback()
         raise HTTPException(500, detail="Xảy ra lỗi khi cập nhật certification")
@@ -66,7 +69,7 @@ def delete_certification(
 ):
     try:
         CertificationService.deleteById(payload.id, db)
-        profile_manager.record_request(user.id)
+        profile_manager.record_request(user["id"])
         db.commit()
         return JSONResponse({"success": True, "payload": {}, "message": "skibidi"}, 200)
     

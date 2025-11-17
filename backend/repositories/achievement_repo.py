@@ -6,7 +6,7 @@ class AchievementRepository:
     @staticmethod
     def getByUserId(id: int, db: Session):
         achievements = db.query(Achievement).filter(Achievement.user_id == id).all()
-        return [AchievementRepository.toDict(achievement) for achievement in achievements]
+        return achievements
     
     
     @staticmethod
@@ -43,7 +43,7 @@ class AchievementRepository:
             "id": str(achievement.id),
             "title": achievement.title,
             "issuer": achievement.issuer,
-            "award_date": achievement.award_date,
+            "award_date": str(achievement.award_date),
             "description": achievement.description
         }
         if user_id:

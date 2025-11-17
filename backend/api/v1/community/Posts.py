@@ -46,20 +46,20 @@ def get_posts(
             # Check if user reacted
             user_reaction = db.query(CommunityReaction).filter(
                 CommunityReaction.post_id == post.id,
-                CommunityReaction.user_id == user.id,
+                CommunityReaction.user_id == user["id"],
                 CommunityReaction.reaction_type == "like"
             ).first()
             
             # Check if user đã repost (có post nào của user có repost_of = post.id không)
             user_reposted = db.query(CommunityPost).filter(
                 CommunityPost.repost_of == post.id,
-                CommunityPost.author_id == user.id
+                CommunityPost.author_id == user["id"]
             ).first()
             
             # Check if user saved this post
             user_saved = db.query(SavedPost).filter(
                 SavedPost.post_id == post.id,
-                SavedPost.user_id == user.id
+                SavedPost.user_id == user["id"]
             ).first()
             
             # Handle image URL
@@ -164,7 +164,7 @@ def create_post(
     """Tạo post mới"""
     try:
         new_post = CommunityPost(
-            author_id=user.id,
+            author_id=user["id"],
             content=payload.content,
             image=payload.image,
             video=payload.video,
@@ -229,7 +229,7 @@ def toggle_reaction(
         # Check existing reaction
         existing_reaction = db.query(CommunityReaction).filter(
             CommunityReaction.post_id == post_id,
-            CommunityReaction.user_id == user.id
+            CommunityReaction.user_id == user["id"]
         ).first()
         
         if existing_reaction:
@@ -240,7 +240,7 @@ def toggle_reaction(
             # Add reaction (like)
             new_reaction = CommunityReaction(
                 post_id=post_id,
-                user_id=user.id,
+                user_id=user["id"],
                 reaction_type=payload.reaction_type
             )
             db.add(new_reaction)
@@ -294,7 +294,7 @@ def toggle_comment_reaction(
         # Check existing reaction
         existing_reaction = db.query(CommunityCommentReaction).filter(
             CommunityCommentReaction.comment_id == comment_id,
-            CommunityCommentReaction.user_id == user.id
+            CommunityCommentReaction.user_id == user["id"]
         ).first()
         
         if existing_reaction:
@@ -305,7 +305,7 @@ def toggle_comment_reaction(
             # Add reaction (like)
             new_reaction = CommunityCommentReaction(
                 comment_id=comment_id,
-                user_id=user.id,
+                user_id=user["id"],
                 reaction_type=payload.reaction_type
             )
             db.add(new_reaction)
@@ -355,7 +355,7 @@ def get_comments(
             # Check if user liked this comment
             user_liked = db.query(CommunityCommentReaction).filter(
                 CommunityCommentReaction.comment_id == comment.id,
-                CommunityCommentReaction.user_id == user.id
+                CommunityCommentReaction.user_id == user["id"]
             ).first() is not None
             
             # Lấy tên hiển thị từ profile hoặc email
@@ -430,7 +430,7 @@ def create_comment(
         
         new_comment = CommunityComment(
             post_id=post_id,
-            author_id=user.id,
+            author_id=user["id"],
             content=payload.content
         )
         
@@ -483,7 +483,7 @@ def create_repost(
             )
         
         # Check user không phải author của post gốc
-        if original_post.author_id == user.id:
+        if original_post.author_id == user["id"]:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={
@@ -494,7 +494,7 @@ def create_repost(
         
         # Tạo post mới (repost)
         repost = CommunityPost(
-            author_id=user.id,
+            author_id=user["id"],
             content=original_post.content,  # Copy content từ post gốc
             image=original_post.image,      # Copy image
             video=original_post.video,      # Copy video
@@ -552,7 +552,7 @@ def toggle_save_post(
         # Check existing save
         existing_save = db.query(SavedPost).filter(
             SavedPost.post_id == post_id,
-            SavedPost.user_id == user.id
+            SavedPost.user_id == user["id"]
         ).first()
         
         if existing_save:
@@ -563,7 +563,7 @@ def toggle_save_post(
             # Add save
             new_save = SavedPost(
                 post_id=post_id,
-                user_id=user.id
+                user_id=user["id"]
             )
             db.add(new_save)
             action = "saved"
@@ -571,7 +571,7 @@ def toggle_save_post(
         db.commit()
         
         # Get total saved posts count
-        saved_count = db.query(SavedPost).filter(SavedPost.user_id == user.id).count()
+        saved_count = db.query(SavedPost).filter(SavedPost.user_id == user["id"]).count()
         
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -608,7 +608,7 @@ def get_saved_posts(
         
         # Query saved posts của user
         saved_posts_query = db.query(SavedPost).join(CommunityPost).join(User).filter(
-            SavedPost.user_id == user.id
+            SavedPost.user_id == user["id"]
         ).order_by(SavedPost.saved_at.desc())
         
         total = saved_posts_query.count()
@@ -632,19 +632,19 @@ def get_saved_posts(
             # Check user reactions
             user_reaction = db.query(CommunityReaction).filter(
                 CommunityReaction.post_id == post.id,
-                CommunityReaction.user_id == user.id,
+                CommunityReaction.user_id == user["id"],
                 CommunityReaction.reaction_type == "like"
             ).first()
             
             user_reposted = db.query(CommunityPost).filter(
                 CommunityPost.repost_of == post.id,
-                CommunityPost.author_id == user.id
+                CommunityPost.author_id == user["id"]
             ).first()
             
             # Check if user saved this post
             user_saved = db.query(SavedPost).filter(
                 SavedPost.post_id == post.id,
-                SavedPost.user_id == user.id
+                SavedPost.user_id == user["id"]
             ).first()
             
             # Handle URLs (giống GET posts)
@@ -734,7 +734,7 @@ def get_saved_posts_count(
 ):
     """Lấy số lượng saved posts của user"""
     try:
-        count = db.query(SavedPost).filter(SavedPost.user_id == user.id).count()
+        count = db.query(SavedPost).filter(SavedPost.user_id == user["id"]).count()
         
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -773,7 +773,7 @@ def delete_post(
                 }
             )
 
-        if post.author_id != user.id:
+        if post.author_id != user["id"]:
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={
