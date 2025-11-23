@@ -175,4 +175,5 @@ cython_debug/
 
 /database/
 /graph_database/
-/chatbot/
+/chatbot/txt_data
+/chatbot/vectordb
