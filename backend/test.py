@@ -20,17 +20,19 @@ with open(os.path.join(settings.BASE_DIR, "artifacts", "WebScrape", "data.json")
 #     print("User registration failed. Status code:", response.status_code)
 #     print("Response:", response.json())
 
+baseUrl = "http://localhost:8000"
+
 login_payload = {
-    "username": "dinhdat201fb@gmail.com",
-    "password": "Dinhdat201fb@gma"
+    "username": "ntgiang141105@gmail.com",
+    "password": "141105aZ*"
 }
 
 
-login_url = "https://scholarhub-be.ript.vn/api/v1/auth/login"
+login_url = f"{baseUrl}/api/v1/auth/login"
 headers = {"Content-Type": "application/x-www-form-urlencoded"}
 response = requests.post(login_url, data=login_payload, headers=headers)
 token = response.json()["access_token"]
-post_url = "https://scholarhub-be.ript.vn/api/v1/scholarships"
+post_url = f"{baseUrl}/api/v1/scholarships"
 post_headers = {
     "Authorization": f"Bearer {token}",
     "Content-Type": "application/json"
@@ -38,9 +40,6 @@ post_headers = {
 
 
 for i, scholarship in tqdm(enumerate(data), desc = "Posting Scholarship"):
-    if i > 10:
-        break
-    
     criteria = {
         0: "education_criteria",
         1: "experience_criteria",

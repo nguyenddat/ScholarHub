@@ -6,7 +6,7 @@ from models import Scholarship
 from models import Profile
 from ai.Recommendation.services.ScholarshipLoader import load_scholarships, criterias
 
-def recommend_scholarship(db, user):
+def recommend_scholarship(db, user, limit: int = 10, offset: int = 0):
     scholarship_criterias, criteria_weights, scholarships = load_scholarships(db)
 
     profile = db.query(Profile).filter(Profile.user_id == user["id"]).first()
@@ -26,7 +26,6 @@ def recommend_scholarship(db, user):
             np.sum(profile_criteria_np @ scholarship_criteria, axis = 0).dot(criteria_weight)
         )
 
-
     sorted_idx = np.argsort(points)[::-1]
     resp_obj = []
     for i in sorted_idx:
@@ -38,4 +37,4 @@ def recommend_scholarship(db, user):
         
         resp_obj.append(scholarships[i])
     
-    return resp_obj
+    return resp_obj[offset:offset + limit]

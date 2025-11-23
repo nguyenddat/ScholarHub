@@ -29,19 +29,19 @@ def get_scholarship(
             payload = Scholarship.get(db = db, mode = "filter", params = {"id": id})
             if len(payload) > 0:
                 payload = payload[0]
-        
         else:
             payload = Scholarship.get(db, "all", limit = limit, offset = offset)
     else:
-        payload = recommend_scholarship(db = db, user = user)
-
+        payload = recommend_scholarship(db = db, user = user, limit = limit, offset = offset)
+    
     return JSONResponse(
         status_code = status.HTTP_200_OK,
-        content = {        
-                "success": True, 
-                "message": "Lấy danh sách học bổng thành công",
-                "payload": {"scholarships": payload}}
-        )
+        content = {
+            "success": True,
+            "message": "Lấy danh sách học bổng thành công",
+            "payload": {"scholarships": payload}
+        }
+    )
 
 
 @router.get("/manage-scholarships")
